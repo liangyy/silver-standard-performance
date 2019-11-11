@@ -1,0 +1,79 @@
+---
+title: "Minimal example to run prroc"
+# author: Yanyu Liang
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+```{r setup}
+rm(list = ls())
+library(ggplot2)
+library(dplyr)
+```
+
+# Install 
+
+We do side-by-side comparison with `ROCR` so that we need to install `ROCR` as well.
+
+```{r}
+devtools::install_github('liangyy/prroc')
+if(!"ROCR" %in% rownames(installed.packages())) {
+  install.packages('ROCR')
+}
+library(prroc)
+library(ROCR)
+```
+
+# Load test data
+
+```{r load_data}
+# load data
+data(ROCR.simple)
+names(ROCR.simple)
+head(ROCR.simple$predictions)
+head(ROCR.simple$labels)
+# format into prroc working case
+# namely, to add candidate ID's
+ROCR.simple$gene_name = paste('gene', 1 : length(ROCR.simple$predictions))
+# extract gene names for real signal
+true_genes = ROCR.simple$gene_name[which(ROCR.simple$labels == 1)]
+```
+
+# Precision-recall curve
+
+## Plotting PR with `prroc`
+
+```{r pr_prroc}
+df = gen_fdr_power_curve(true_genes = true_genes, gene = ROCR.simple$gene_name, score = ROCR.simple$predictions, method = 'gt', cutoff = NULL)
+df[-nrow(df), ] %>% ggplot() + geom_path(aes(x = recall, y = precision))
+```
+
+## Plotting PR with `ROCR`
+
+```{r pr_rocr}
+pred <- prediction( ROCR.simple$predictions, ROCR.simple$labels)
+perf1 <- performance(pred, "prec", "rec")
+plot(perf1)
+```
+
+# ROC curve
+
+## Plotting ROC with `prroc`
+
+```{r roc_prroc}
+df = gen_roc_curve(true_genes = true_genes, gene = ROCR.simple$gene_name, score = ROCR.simple$predictions, method = 'gt', cutoff = NULL)
+df %>% ggplot() + geom_path(aes(x = fpr, y = tpr))
+```
+
+## Plotting ROC with `ROCR`
+
+```{r roc_rocr}
+pred <- prediction( ROCR.simple$predictions, ROCR.simple$labels)
+perf1 <- performance(pred, "tpr", "fpr")
+plot(perf1)
+```
+
+# Session information
+
+```{r summary}
+sessionInfo()
+```

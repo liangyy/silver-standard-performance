@@ -1,0 +1,19 @@
+name: "prroc"
+output_dir: "../"
+include: [".nojekyll"]
+exclude: ["include"]
+navbar:
+  title: "prroc documentation"
+  left:
+    - text: "Home"
+      href: index.html
+  right:
+    - icon: fa-github
+      href: https://github.com/liangyy/prroc
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    highlight: textmate
+    number_sections: true
+    
