@@ -1,0 +1,114 @@
+---
+title: "Example run of silver standard analysis"
+# author: Yanyu Liang
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+```{r setup}
+rm(list = ls())
+library(ggplot2)
+library(dplyr)
+library(pander)
+panderOptions('table.split.table', Inf)
+```
+
+# Install 
+
+Install `prroc`
+
+```{r install_prroc}
+devtools::install_github('liangyy/prroc')
+library(prroc)
+```
+
+# Load silver standard
+
+Download silver standard [here](https://github.com/hakyimlab/gold-standard/blob/master/data/silver_phecode_to_mim.rds) 
+
+```{r load_silver}
+silver_standard = readRDS('~/Downloads/silver_phecode_to_mim.rds')
+# show the silver standard object
+silver_standard$script_info
+head(silver_standard$table)
+```
+
+# Load example data set
+
+Using the one composed for [GTEx GWAS paper](https://www.biorxiv.org/content/10.1101/814350v1).
+
+```{r load_example}
+options(stringsAsFactors = F)
+library(dplyr)
+dat = read.table('https://bitbucket.org/yanyul/rotation-at-imlab/raw/85a3fbe8f08df7c67265fed69569b7ea554d4e12/analysis/fdr_power_specificity/companion_figure_finalized/summary_on_expression_cleanup/logistic-based-test.datamatrix.OMIM-LD-block-PrediXcan-MASH-EUR.tsv', header = T, sep = '\t')
+gwas_catelog_to_phecode = read.csv('https://bitbucket.org/yanyul/rotation-at-imlab/raw/85a3fbe8f08df7c67265fed69569b7ea554d4e12/analysis/gold-standard/gwas-catalog-to-phecode.csv')
+trait_to_gwas_catalog = read.delim2('https://bitbucket.org/yanyul/rotation-at-imlab/raw/85a3fbe8f08df7c67265fed69569b7ea554d4e12/analysis/gold-standard/trait-to-hpo-and-mim.txt', header = T, sep = '\t')
+
+# obtain mapping between trait and phecode
+map_trait_to_phecode = list()
+for(i in 1 : nrow(trait_to_gwas_catalog)) {
+  mapped_traits = trait_to_gwas_catalog$mapped_trait[i]
+  if(is.na(mapped_traits)) {
+    next
+  }
+  catalog_strings = unique(unlist(strsplit(mapped_traits, ';')))
+  phecodes = gwas_catelog_to_phecode %>% filter(trait %in% catalog_strings) %>% pull(phecode)
+  phecodes = unique(phecodes)
+  phecodes = phecodes[phecodes != '-']
+  if(length(phecodes) == 0) {
+    next
+  }
+  map_trait_to_phecode[[length(map_trait_to_phecode) + 1]] = data.frame(trait = trait_to_gwas_catalog$trait[i], phecode = phecodes)
+}
+map_trait_to_phecode = do.call(rbind, map_trait_to_phecode)
+
+# obtain mapping between trait and HPO
+map_trait_to_hpo = list()
+for(i in 1 : nrow(trait_to_gwas_catalog)) {
+  hpo_str = trait_to_gwas_catalog$hpo[i]
+  if(is.na(hpo_str)) {
+    next
+  }
+  hpos = unique(unlist(strsplit(hpo_str, ';')))
+  if(length(hpos) == 0) {
+    next
+  }
+  map_trait_to_hpo[[length(map_trait_to_hpo) + 1]] = data.frame(trait = trait_to_gwas_catalog$trait[i], HPO = hpos)
+}
+map_trait_to_hpo = do.call(rbind, map_trait_to_hpo)
+
+
+score_table = dat %>% select(trait, gene, predixcan_mashr_eur_score, enloc_score) %>% distinct()
+map_table = map_trait_to_phecode %>% distinct()
+map_table2 = map_trait_to_hpo %>% distinct()
+```
+
+## Score table
+
+```{r score_tbl}
+score_table %>% head %>% pander
+```
+
+## Map table
+
+```{r map_tbl}
+map_table %>% head %>% pander(caption = 'trait to phecode')
+map_table2 %>% head %>% pander(caption = 'trait to HPO')
+```
+
+# Run silver standard analysis
+
+## Join by phecode
+
+```{r silver1}
+o = silver_standard_proto(score_table, map_table, silver_standard, trait_code = 'phecode')
+o$pr + ggtitle('PR by phecode')
+o$roc + ggtitle('ROC by phecode')
+```
+
+## Join by HPO
+
+```{r silver2}
+o = silver_standard_proto(score_table, map_table2, silver_standard, trait_code = 'HPO')
+o$pr + ggtitle('PR by HPO')
+o$roc + ggtitle('ROC by HPO')
+```

@@ -5,3 +5,4 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 ---
 
 * Minimal example is [here](minimal_example.html)
+* Example run on silver standard analysis is [here](example_silver_standard.html)
