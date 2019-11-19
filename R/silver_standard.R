@@ -97,7 +97,6 @@ silver_standard_proto = function(score_table, map_table, silver_standard, score_
   }
   pr_curves = do.call(rbind, pr_curves)
   pr = pr_curves %>% ggplot() + geom_path(aes_string(x = 'power', y = 'precision', color = 'score'))
-  pr
 
 
   roc_curves = list()
@@ -107,9 +106,9 @@ silver_standard_proto = function(score_table, map_table, silver_standard, score_
 
   }
   roc_curves = do.call(rbind, roc_curves)
+  auc = compute_auc(roc_curves)
   roc = roc_curves %>% ggplot() + geom_path(aes_string(x = 'fpr', y = 'tpr', color = 'score')) + coord_equal()
-  roc
-  return(list(pr = pr, roc = roc))
+  return(list(pr = pr, roc = roc, roc_auc = auc$roc_auc))
 }
 
 pair_up_trait_and_gene = function(trait, gene) {
