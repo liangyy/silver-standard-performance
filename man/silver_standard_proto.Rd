@@ -57,16 +57,19 @@ silver_standard_proto(
     trait = c(rep('t1', 20), rep('t2', 30), rep('t3', 50)),
     gene = paste0('g', sample(1:100, size = 100, replace = TRUE)),
     score1 = runif(100),
-    score2 = runif(100)
+    score2 = runif(100),
+    stringsAsFactors = FALSE
   ),
   map_table = data.frame(
     trait = c('t1', 't2', 't3'),
-    phecode = c('1.1', '23', '12')
+    phecode = c('1.1', '23', '12'),
+    stringsAsFactors = FALSE
   ),
   silver_standard = list(
     table = data.frame(
       phecode = c(rep('1.1', 10), rep('23', 10), rep('12', 10), rep('2', 10)),
-      gene = paste0('g', sample(1:100, size = 40, replace = TRUE))
+      gene = paste0('g', sample(1:100, size = 40, replace = TRUE)),
+      stringsAsFactors = FALSE
     ),
     script_info = 'toy_example'
   )

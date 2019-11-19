@@ -37,16 +37,19 @@
 #'     trait = c(rep('t1', 20), rep('t2', 30), rep('t3', 50)),
 #'     gene = paste0('g', sample(1:100, size = 100, replace = TRUE)),
 #'     score1 = runif(100),
-#'     score2 = runif(100)
+#'     score2 = runif(100),
+#'     stringsAsFactors = FALSE
 #'   ),
 #'   map_table = data.frame(
 #'     trait = c('t1', 't2', 't3'),
-#'     phecode = c('1.1', '23', '12')
+#'     phecode = c('1.1', '23', '12'),
+#'     stringsAsFactors = FALSE
 #'   ),
 #'   silver_standard = list(
 #'     table = data.frame(
 #'       phecode = c(rep('1.1', 10), rep('23', 10), rep('12', 10), rep('2', 10)),
-#'       gene = paste0('g', sample(1:100, size = 40, replace = TRUE))
+#'       gene = paste0('g', sample(1:100, size = 40, replace = TRUE)),
+#'       stringsAsFactors = FALSE
 #'     ),
 #'     script_info = 'toy_example'
 #'   )
@@ -100,15 +103,17 @@ silver_standard_proto = function(score_table, map_table, silver_standard, score_
 
 
   roc_curves = list()
+  roc_aucs = list()
   for(i in score_cols) {
     roc_curve = gen_roc_curve(true_genes = trait_gene_silver_pool, gene = trait_gene_candidate_pool, score = score_table_subset[, i])
     roc_curves[[length(roc_curves) + 1]] = roc_curve %>% mutate(score = i)
-
+    roc_aucs[[length(roc_aucs) + 1]] = compute_auc(roc_curves[[length(roc_curves)]]) %>% mutate(score = i)
   }
   roc_curves = do.call(rbind, roc_curves)
-  auc = compute_auc(roc_curves)
+  roc_aucs = do.call(rbind, roc_aucs)
+
   roc = roc_curves %>% ggplot() + geom_path(aes_string(x = 'fpr', y = 'tpr', color = 'score')) + coord_equal()
-  return(list(pr = pr, roc = roc, roc_auc = auc$roc_auc))
+  return(list(pr = pr, roc = roc, roc_auc = roc_aucs))
 }
 
 pair_up_trait_and_gene = function(trait, gene) {
