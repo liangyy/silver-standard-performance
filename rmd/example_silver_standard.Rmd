@@ -14,11 +14,11 @@ panderOptions('table.split.table', Inf)
 
 # Install 
 
-Install `prroc`
+Install `SilverStandardPerformance`
 
-```{r install_prroc}
-devtools::install_github('liangyy/prroc')
-library(prroc)
+```{r install_ssp}
+devtools::install_github('liangyy/silver-standard-performance')
+library(SilverStandardPerformance)
 ```
 
 # Load silver standard
@@ -102,6 +102,7 @@ map_table2 %>% head %>% pander(caption = 'trait to HPO')
 o = silver_standard_proto(score_table, map_table, omim_based_silver_standard, trait_code = 'phecode')
 o$pr + ggtitle('PR by phecode')
 o$roc + ggtitle('ROC by phecode')
+o$roc_auc %>% pander('ROC AUC')
 ```
 
 ## Join by HPO
@@ -110,4 +111,5 @@ o$roc + ggtitle('ROC by phecode')
 o = silver_standard_proto(score_table, map_table2, omim_based_silver_standard, trait_code = 'HPO')
 o$pr + ggtitle('PR by HPO')
 o$roc + ggtitle('ROC by HPO')
+o$roc_auc %>% pander('ROC AUC')
 ```

@@ -1,15 +1,15 @@
-name: "prroc"
+name: "SilverStandardPerformance"
 output_dir: "../"
 include: [".nojekyll"]
 exclude: ["include"]
 navbar:
-  title: "prroc documentation"
+  title: "SilverStandardPerformance documentation"
   left:
     - text: "Home"
       href: index.html
   right:
     - icon: fa-github
-      href: https://github.com/liangyy/prroc
+      href: https://github.com/liangyy/silver-standard-performance
 output:
   html_document:
     toc: true

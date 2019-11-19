@@ -417,11 +417,11 @@ library(pander)
 panderOptions(&#39;table.split.table&#39;, Inf)</code></pre>
 <div id="install" class="section level1">
 <h1><span class="header-section-number">1</span> Install</h1>
-<p>Install <code>prroc</code></p>
-<pre class="r"><code>devtools::install_github(&#39;liangyy/prroc&#39;)</code></pre>
-<pre><code>## Skipping install of &#39;prroc&#39; from a github remote, the SHA1 (4487bf25) has not changed since last install.
+<p>Install <code>SilverStandardPackage</code></p>
+<pre class="r"><code>devtools::install_github(&#39;liangyy/silver-standard-performance&#39;)</code></pre>
+<pre><code>## Skipping install of &#39;SilverStandardPerformance&#39; from a github remote, the SHA1 (b20d563c) has not changed since last install.
 ##   Use `force = TRUE` to force installation</code></pre>
-<pre class="r"><code>library(prroc)</code></pre>
+<pre class="r"><code>library(SilverStandardPerformance)</code></pre>
 </div>
 <div id="load-silver-standard" class="section level1">
 <h1><span class="header-section-number">2</span> Load silver standard</h1>
@@ -680,6 +680,30 @@ map_table2 = map_trait_to_hpo %&gt;% distinct()</code></pre>
 <p><img src="example_silver_standard_files/figure-html/silver1-1.png" width="672" /></p>
 <pre class="r"><code>o$roc + ggtitle(&#39;ROC by phecode&#39;)</code></pre>
 <p><img src="example_silver_standard_files/figure-html/silver1-2.png" width="672" /></p>
+<pre class="r"><code>o$roc_auc %&gt;% pander(&#39;ROC AUC&#39;)</code></pre>
+<table style="width:53%;">
+<caption>ROC AUC</caption>
+<colgroup>
+<col width="13%" />
+<col width="38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">roc_auc</th>
+<th align="center">score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0.6771</td>
+<td align="center">predixcan_mashr_eur_score</td>
+</tr>
+<tr class="even">
+<td align="center">0.6732</td>
+<td align="center">enloc_score</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="join-by-hpo" class="section level2">
 <h2><span class="header-section-number">4.2</span> Join by HPO</h2>
@@ -694,6 +718,30 @@ map_table2 = map_trait_to_hpo %&gt;% distinct()</code></pre>
 <p><img src="example_silver_standard_files/figure-html/silver2-1.png" width="672" /></p>
 <pre class="r"><code>o$roc + ggtitle(&#39;ROC by HPO&#39;)</code></pre>
 <p><img src="example_silver_standard_files/figure-html/silver2-2.png" width="672" /></p>
+<pre class="r"><code>o$roc_auc %&gt;% pander(&#39;ROC AUC&#39;)</code></pre>
+<table style="width:53%;">
+<caption>ROC AUC</caption>
+<colgroup>
+<col width="13%" />
+<col width="38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">roc_auc</th>
+<th align="center">score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0.6771</td>
+<td align="center">predixcan_mashr_eur_score</td>
+</tr>
+<tr class="even">
+<td align="center">0.6732</td>
+<td align="center">enloc_score</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
