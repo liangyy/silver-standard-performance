@@ -23,13 +23,12 @@ library(prroc)
 
 # Load silver standard
 
-Download silver standard [here](https://github.com/hakyimlab/gold-standard/blob/master/data/silver_phecode_to_mim.rds) 
 
 ```{r load_silver}
-silver_standard = readRDS('~/Downloads/silver_phecode_to_mim.rds')
+data("omim_based_silver_standard")
 # show the silver standard object
-silver_standard$script_info
-silver_standard$table %>% head %>% pander
+omim_based_silver_standard$script_info
+omim_based_silver_standard$table %>% head %>% pander
 ```
 
 # Load example data set
@@ -100,7 +99,7 @@ map_table2 %>% head %>% pander(caption = 'trait to HPO')
 ## Join by phecode
 
 ```{r silver1}
-o = silver_standard_proto(score_table, map_table, silver_standard, trait_code = 'phecode')
+o = silver_standard_proto(score_table, map_table, omim_based_silver_standard, trait_code = 'phecode')
 o$pr + ggtitle('PR by phecode')
 o$roc + ggtitle('ROC by phecode')
 ```
@@ -108,7 +107,7 @@ o$roc + ggtitle('ROC by phecode')
 ## Join by HPO
 
 ```{r silver2}
-o = silver_standard_proto(score_table, map_table2, silver_standard, trait_code = 'HPO')
+o = silver_standard_proto(score_table, map_table2, omim_based_silver_standard, trait_code = 'HPO')
 o$pr + ggtitle('PR by HPO')
 o$roc + ggtitle('ROC by HPO')
 ```
