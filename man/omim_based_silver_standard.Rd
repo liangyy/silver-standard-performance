@@ -3,12 +3,13 @@
 \docType{data}
 \name{omim_based_silver_standard}
 \alias{omim_based_silver_standard}
-\title{Silver standard based on OMIM <-> HPo/pheocode mapping}
+\title{Silver standard based on OMIM <-> HPO/pheocode mapping}
 \format{a list of:
   1. table: a data.frame with
      column gene (with Ensembl ID, e.g. ENSG00000133019) ,
-     column HPO (HPO term in the format HPO:0000126),
-     column phecode (e.g. 595);
+     column HPO (HPO term in the format HP:0000126),
+     column phecode (e.g. 595),
+     column EFO (e.g. EFO:0004238);
   2. script_info: meta information on how data set is generated.}
 \source{
 \href{https://github.com/hakyimlab/gold-standard/blob/master/scripts/phecode_to_omim_to_gene.sh}{Source code generating this silver standard dataset}
@@ -17,7 +18,9 @@
 data(omim_based_silver_standard)
 }
 \description{
-The MIM phenotype to MIM gene map is obtained from genemap2.txt provided by OMIM database (accessed at 07/2019).
+The MIM phenotype to MIM gene map is obtained from genemap2.txt
+provided by OMIM database (accessed at 07/2019).
+The MIM phenotypes to HPO/phecode map is provided by Lisa Bastarache.
 }
 \examples{
 data(omim_based_silver_standard)

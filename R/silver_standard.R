@@ -21,9 +21,19 @@
 #' @param silver_standard shared along with the package. It is a list with meta information and
 #' a table (a data.frame) where each row pairs trait in phecode, HPO to gene.
 #' New silver_standard data set is awaiting for contribution from the community.
+#' @param gwas_loci a data.frame with columns: chromosome (e.g. chr1), start, end,
+#' trait (with trait name matching the one in score_table) indicating which GWAS loci you want to focus on.
+#' If it is specified as non-NULL, you should also specify gene_annotation as the genomic position for genes.
+#' By specifying gwas_loci and gene_annotation, it triggers a more stringent
+#' (recommended due to the sparse nature of silver standard) pre-processing step
+#' to limit analysis on a subset of trait-gene pairs in score_table, by the following 2 steps:
+#' 1. Select GWAS loci overlapping with silver standard gene
+#' 2. Select genes that overlap with selected GWAS loci as candidate genes.
+#' @param gene_annotation a data.frame with columns:
+#' chromosome (e.g. chr1), start, end, gene (Ensembl ID (no dot), e.g. ENSG00000084754)
 #' @param score_cols a vector of column names in score_table to be used as score columns. If it is NULL, all
 #' but 'trait' and 'gene' columns will be used.
-#' @param trait_code trait code to use for mapping: 'phecode' or 'HPO'.
+#' @param trait_codes trait codes to use for mapping: 'phecode' and/or 'HPO'.
 #' @param mapping_method the name of the mapping function used to match trait name with gene
 #' on the basis of map_table and silver_standard$table
 #' New mapping_method is awaiting for contribution from the community.
@@ -32,38 +42,48 @@
 #' @return list containing PR and ROC plots which are ggplot2 objects
 #'
 #' @examples
-#' silver_standard_proto(
-#'   score_table = data.frame(
-#'     trait = c(rep('t1', 20), rep('t2', 30), rep('t3', 50)),
-#'     gene = paste0('g', sample(1:100, size = 100, replace = TRUE)),
-#'     score1 = runif(100),
-#'     score2 = runif(100),
+#' score_table = data.frame(
+#'   trait = c(rep('t1', 20), rep('t2', 30), rep('t3', 50)),
+#'   gene = paste0('g', 1:100),
+#'   score1 = runif(100),
+#'   score2 = runif(100),
+#'   stringsAsFactors = FALSE
+#' )
+#' map_table = data.frame(
+#'   trait = c('t1', 't2', 't3'),
+#'   phecode = c('1.1', '23', '12'),
+#'   stringsAsFactors = FALSE
+#' )
+#' silver_standard = list(
+#'   table = data.frame(
+#'     phecode = c(rep('1.1', 10), rep('23', 10), rep('12', 10), rep('2', 10)),
+#'     gene = paste0('g', 1:40),
 #'     stringsAsFactors = FALSE
 #'   ),
-#'   map_table = data.frame(
-#'     trait = c('t1', 't2', 't3'),
-#'     phecode = c('1.1', '23', '12'),
-#'     stringsAsFactors = FALSE
-#'   ),
-#'   silver_standard = list(
-#'     table = data.frame(
-#'       phecode = c(rep('1.1', 10), rep('23', 10), rep('12', 10), rep('2', 10)),
-#'       gene = paste0('g', sample(1:100, size = 40, replace = TRUE)),
-#'       stringsAsFactors = FALSE
-#'     ),
-#'     script_info = 'toy_example'
-#'   )
+#'   script_info = 'toy_example'
+#' )
+#' gwas_loci = data.frame(
+#'   chromosome = paste0('chr', sample(1:1, size = 10, replace = TRUE)),
+#'   start = (1:10) * 1e3 + 300, end = (1:10) * 1e3 + 500,
+#'   trait = sample(c('t1', 't2'), size = 10, replace = TRUE)
+#' )
+#' gene_annot = data.frame(
+#'   chromosome = paste0('chr', sample(1:1, size = 100, replace = TRUE)),
+#'   gene_id = paste0('g', 1:100),
+#'   start = 1:10 * 1e3 + 350,
+#'   end = 1:10 * 1e3 + 450,
+#'   gene_type = c(rep('protein_coding', 60), rep('psuedogene', 40))
 #' )
 #'
 #' @export
 #' @import dplyr
 #' @import ggplot2
-silver_standard_proto = function(score_table, map_table, silver_standard, score_cols = NULL, trait_code = 'phecode', mapping_method = 'greedy_map') {
+silver_standard_proto = function(score_table, map_table, silver_standard, gwas_loci = NULL, gene_annotation = NULL, score_cols = NULL, trait_codes = 'phecode', mapping_method = 'greedy_map') {
   message('Run with silver standard from: ', silver_standard$script_info)
   message('Map trait by: ', trait_code)
   message('Mapper chosen: ', mapping_method)
   mapper = match.fun(mapping_method)
-  if(! trait_code %in% colnames(map_table)) {
+  if(sum(trait_codes %in% colnames(map_table)) == 0) {
     message('ERROR: The input map_table does not have the trait_code you select')
   }
   if(is.null(score_cols)) {
@@ -76,17 +96,47 @@ silver_standard_proto = function(score_table, map_table, silver_standard, score_
   # step 1
   # join trait - code (map_table) and code - gene (silver_standard$table) tables
   # to get trait - gene table for silver standard pairs
-  trait_gene_silver = mapper(map_table, silver_standard$table, trait_code)
+  trait_gene_silver_list = list()
+  for(trait_code in trait_codes) {
+    trait_gene_silver_list[[length(trait_gene_silver_list) + 1]] = mapper(map_table, silver_standard$table, trait_code) %>% mutate(trait_gene = pair_up_trait_and_gene(.data$trait, .data$gene))
+  }
+  trait_gene_silver = do.call(rbind, trait_gene_silver_list) %>% distinct()
 
   # step 2
+  # if no pre-processing
   # subset score_table to keep traits successfully matched to silver standard
-  score_table_subset = score_table %>% filter(.data$trait %in% trait_gene_silver$trait)
+  # if pre-processing
+  # perform pre-processing to limit to GWAS loci having silver standard genes and candidate genes overlapping selected GWAS loci
+  message('# trait-gene pairs in score table before step 2: ', nrow(score_table))
+  if(is.null(gwas_loci)) {
+    message('gwas_loci is set to NULL, skip pre-processing step')
+    score_table_subset = score_table %>% filter(.data$trait %in% trait_gene_silver$trait)
+  } else {
+    message('Start pre-processing step: limit to (1) GWAS loci with silver standard genes and (2) genes overlapping in selected GWAS loci')
+    if(is.null(gene_annotation)) {
+      message('gene_annotation is NULL, please specify the gene_annotation is you want to perform pre-processing')
+      return(NULL)
+    }
+    message('Pre-processing step 1: select GWAS loci with silver standard genes')
+    # gwas_loci = gwas_loci %>% mutate(identifier = merge_up(chromosome, start, end, trait))
+    gwas_loci_with_gene = annotate_gwas_loci_with_gene(gwas_loci, gene_annotation) %>% mutate(trait_gene = pair_up_trait_and_gene(.data$trait, .data$gene)) %>% mutate(identifier = merge_up(.data$chromosome, .data$start, .data$end, .data$trait))
+    gwas_loci_with_silver = gwas_loci_with_gene %>% filter(.data$trait_gene %in% trait_gene_silver$trait_gene) %>% select(-.data$gene) %>% distinct()
+    message('Pre-processing step 2: select candidate gens overlapping selected GWAS loci')
+    trait_gene_pairs_overlapping_gwas_loci_with_silver = gwas_loci_with_gene %>% filter(.data$identifier %in% gwas_loci_with_silver$identifier)
+    score_table_subset = score_table %>% filter(pair_up_trait_and_gene(.data$trait, .data$gene) %in% trait_gene_pairs_overlapping_gwas_loci_with_silver$trait_gene)
+    trait_gene_silver = trait_gene_silver %>% filter(.data$trait_gene %in% gwas_loci_with_silver$trait_gene)
+  }
+  message('# trait-gene pairs in score table after step 2: ', nrow(score_table_subset))
+  if(nrow(score_table_subset) < 3) {
+    message('Too few trait-gene pairs to work with. Exit')
+    return()
+  }
 
   # step 3
   # create candidate trait/gene pair pool
   # and silver standard trait/gene pair pool
   trait_gene_candidate_pool = pair_up_trait_and_gene(score_table_subset$trait, score_table_subset$gene)
-  trait_gene_silver_pool = pair_up_trait_and_gene(trait_gene_silver$trait, trait_gene_silver$gene)
+  trait_gene_silver_pool = trait_gene_silver$trait_gene
 
   # step 4
   # subset silver standard pool to keep trait/gene pairs occurring candidate pool
@@ -118,4 +168,8 @@ silver_standard_proto = function(score_table, map_table, silver_standard, score_
 
 pair_up_trait_and_gene = function(trait, gene) {
   paste(trait, gene, sep = '-x-')
+}
+
+merge_up = function(...) {
+  paste(..., sep = '-x-')
 }

@@ -17,5 +17,7 @@
 #' @import dplyr
 
 greedy_map = function(map_table, silver_table, trait_code) {
-  trait_gene_silver = inner_join(map_table, silver_table, by = .data$trait_code) %>% select(.data$trait, .data$gene) %>% distinct()
+  silver_table = silver_table[!is.na(silver_table[, trait_code]), ]
+  map_table = map_table[!is.na(map_table[, trait_code]), ]
+  trait_gene_silver = map_table %>% inner_join(silver_table, by = trait_code) %>% select(.data$trait, .data$gene) %>% distinct()
 }

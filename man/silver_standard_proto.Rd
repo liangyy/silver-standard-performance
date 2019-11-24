@@ -8,8 +8,10 @@ silver_standard_proto(
   score_table,
   map_table,
   silver_standard,
+  gwas_loci = NULL,
+  gene_annotation = NULL,
   score_cols = NULL,
-  trait_code = "phecode",
+  trait_codes = "phecode",
   mapping_method = "greedy_map"
 )
 }
@@ -26,10 +28,22 @@ So that it is used to map trait names (in score_table) to trait code (in silver_
 a table (a data.frame) where each row pairs trait in phecode, HPO to gene.
 New silver_standard data set is awaiting for contribution from the community.}
 
+\item{gwas_loci}{a data.frame with columns: chromosome (e.g. chr1), start, end,
+trait (with trait name matching the one in score_table) indicating which GWAS loci you want to focus on.
+If it is specified as non-NULL, you should also specify gene_annotation as the genomic position for genes.
+By specifying gwas_loci and gene_annotation, it triggers a more stringent
+(recommended due to the sparse nature of silver standard) pre-processing step
+to limit analysis on a subset of trait-gene pairs in score_table, by the following 2 steps:
+1. Select GWAS loci overlapping with silver standard gene
+2. Select genes that overlap with selected GWAS loci as candidate genes.}
+
+\item{gene_annotation}{a data.frame with columns:
+chromosome (e.g. chr1), start, end, gene (Ensembl ID (no dot), e.g. ENSG00000084754)}
+
 \item{score_cols}{a vector of column names in score_table to be used as score columns. If it is NULL, all
 but 'trait' and 'gene' columns will be used.}
 
-\item{trait_code}{trait code to use for mapping: 'phecode' or 'HPO'.}
+\item{trait_codes}{trait codes to use for mapping: 'phecode' and/or 'HPO'.}
 
 \item{mapping_method}{the name of the mapping function used to match trait name with gene
 on the basis of map_table and silver_standard$table
@@ -52,27 +66,37 @@ User should provide the corresponding HPO or phecode for their GWAS traits in ma
 > map_table2 = data.frame(trait = ..., HPO = ...)
 }
 \examples{
-silver_standard_proto(
-  score_table = data.frame(
-    trait = c(rep('t1', 20), rep('t2', 30), rep('t3', 50)),
-    gene = paste0('g', sample(1:100, size = 100, replace = TRUE)),
-    score1 = runif(100),
-    score2 = runif(100),
+score_table = data.frame(
+  trait = c(rep('t1', 20), rep('t2', 30), rep('t3', 50)),
+  gene = paste0('g', 1:100),
+  score1 = runif(100),
+  score2 = runif(100),
+  stringsAsFactors = FALSE
+)
+map_table = data.frame(
+  trait = c('t1', 't2', 't3'),
+  phecode = c('1.1', '23', '12'),
+  stringsAsFactors = FALSE
+)
+silver_standard = list(
+  table = data.frame(
+    phecode = c(rep('1.1', 10), rep('23', 10), rep('12', 10), rep('2', 10)),
+    gene = paste0('g', 1:40),
     stringsAsFactors = FALSE
   ),
-  map_table = data.frame(
-    trait = c('t1', 't2', 't3'),
-    phecode = c('1.1', '23', '12'),
-    stringsAsFactors = FALSE
-  ),
-  silver_standard = list(
-    table = data.frame(
-      phecode = c(rep('1.1', 10), rep('23', 10), rep('12', 10), rep('2', 10)),
-      gene = paste0('g', sample(1:100, size = 40, replace = TRUE)),
-      stringsAsFactors = FALSE
-    ),
-    script_info = 'toy_example'
-  )
+  script_info = 'toy_example'
+)
+gwas_loci = data.frame(
+  chromosome = paste0('chr', sample(1:1, size = 10, replace = TRUE)),
+  start = (1:10) * 1e3 + 300, end = (1:10) * 1e3 + 500,
+  trait = sample(c('t1', 't2'), size = 10, replace = TRUE)
+)
+gene_annot = data.frame(
+  chromosome = paste0('chr', sample(1:1, size = 100, replace = TRUE)),
+  gene_id = paste0('g', 1:100),
+  start = 1:10 * 1e3 + 350,
+  end = 1:10 * 1e3 + 450,
+  gene_type = c(rep('protein_coding', 60), rep('psuedogene', 40))
 )
 
 }
