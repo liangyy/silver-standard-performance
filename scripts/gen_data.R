@@ -3,7 +3,7 @@
 # data/omim_based_silver_standard.rda
 {
   # download from https://github.com/hakyimlab/gold-standard/blob/master/data/silver_phecode_to_mim.rds
-  omim_based_silver_standard2 = readRDS('~/Downloads/silver_phecode_to_mim.rds')
+  omim_based_silver_standard = readRDS('~/Downloads/silver_phecode_to_mim.rds')
   save(omim_based_silver_standard, file = 'data/omim_based_silver_standard.rda', compress = 'xz')
 }
 
