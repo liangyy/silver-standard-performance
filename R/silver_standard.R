@@ -80,11 +80,11 @@
 #' @import ggplot2
 silver_standard_proto = function(score_table, map_table, silver_standard, gwas_loci = NULL, gene_annotation = NULL, score_cols = NULL, trait_codes = 'phecode', mapping_method = 'greedy_map') {
   message('Run with silver standard from: ', silver_standard$script_info)
-  message('Map trait by: ', trait_code)
+  message('Map trait by: ', paste(trait_codes, collapse = ' ,'))
   message('Mapper chosen: ', mapping_method)
   mapper = match.fun(mapping_method)
-  if(sum(trait_codes %in% colnames(map_table)) == 0) {
-    message('ERROR: The input map_table does not have the trait_code you select')
+  if(sum(trait_codes %in% colnames(map_table)) != length(trait_codes)) {
+    message('ERROR: The input map_table does not have the trait_codes you select')
   }
   if(is.null(score_cols)) {
     message('Extracting all columns of score_table other than "trait" and "gene" as scores')
