@@ -17,7 +17,7 @@ An additional requirement for the "silver standard" is that it should be _indepe
 
 Following this rationale, we composed a rare variant association based silver standard which included height and lipid traits (LDL, HDL, TG, and high cholesterol), which can be loaded by typing 
 ```
-load("rare_variant_based_silver_standard")
+data("rare_variant_based_silver_standard")
 ```
 in R console.
 However, as you may notice, this silver standard is very limited in terms of the number of both traits and genes being included.
@@ -56,5 +56,42 @@ data("orphanet_based_silver_standard")
 As you may notice, these silver standards are far from perfect. 
 We should use and interpret the results with cautious while keeping in mind the imperfectness and potential bias of the silver standard. 
 For your reference, we discuss some of the limitations of the current silver standard at [here](https://liangyy.github.io/silver-standard-performance/example_with_preprocessing.html#2_about_pre-processing_step_in_analysis_pipeline).
+
+## Get started
+
+Suppose you have prioritization scores being calculated for each of the trait/gene pairs transcriptome-wide, you are ready to use `SilverStandardPerformance` to evaluate the performance of the prioritization using the silver standard provided along with the package.
+And furthermore, if you have multiple scoring schemes to compare, you can include them all at once.
+
+The followings are some extra but easy steps you need to take before getting ROC and PR curves done.
+
+* **Step 1**: Prepare/format your score table. 
+
+|                   trait                   |      gene       | predixcan_score | enloc_score |
+|:-----------------------------------------:|:---------------:|:---------------:|:-----------:|
+|     UKB_20002_1466_self_reported_gout     | ENSG00000112763 |      3.665      |      0      |
+|    Astle_et_al_2016_Lymphocyte_counts     | ENSG00000223953 |      1.411      |    0.017    |
+| UKB_20002_1065_self_reported_hypertension | ENSG00000213722 |      9.81       |    0.169    |
+|  Astle_et_al_2016_White_blood_cell_count  | ENSG00000109066 |      3.12       |    0.012    |
+|    UKB_20002_1111_self_reported_asthma    | ENSG00000149485 |      10.36      |    0.676    |
+
+_Comment: it should be a data.frame in R with one column named as 'trait' and one column named as 'gene'. The additional columns are interpreted as columns for different scoring schemes. Besides, the gene name should be Ensembl ID (without dot) and we may allow other gene names in the future._
+
+* **Step 2**: Prepare a map table mapping your traits to EFO, HPO, or phecode.
+
+|                   trait                   | phecode |     HPO     |
+|:-----------------------------------------:|:-------:|:-----------:|
+|        CARDIoGRAM_C4D_CAD_ADDITIVE        |  411.4  | HPO:0003362 |
+| UKB_G43_Diagnoses_main_ICD10_G43_Migraine |  340.1  | HPO:0002083 |
+| UKB_20002_1309_self_reported_osteoporosis |   743   | HPO:0006462 |
+|           EGG_BMI_HapMapImputed           |  278.1  | HPO:0012743 |
+|                GLGC_Mc_TG                 | 272.12  | HPO:0003362 |
+
+To assign one of the ontolog code to your trait makes the software "understand" what your trait really is. 
+To obtain the ontolog code for your trait, you can go to HPO, EFO (GWAS Catalog website may also work), and phecode websites listed above and search for the relevant terms. 
+As a tip, for disease phenotypes, HPO and phecode best suit the purpose and for non-disease quantitative traits, EFO may work better.  
+
+_Comment: _
+
+
 
 
