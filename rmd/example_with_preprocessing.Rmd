@@ -1,0 +1,167 @@
+---
+title: "Example run of silver standard analysis with pre-processing"
+# author: Yanyu Liang
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+```{r setup}
+rm(list = ls())
+library(ggplot2)
+library(dplyr)
+library(pander)
+panderOptions('table.split.table', Inf)
+```
+
+# Install 
+
+Install `SilverStandardPerformance`
+
+```{r install_ssp}
+devtools::install_github('liangyy/silver-standard-performance')
+library(SilverStandardPerformance)
+```
+
+# About pre-processing step in analysis pipeline
+
+Silver standard has several limitations. 
+And here is a incomplete list of these limitations:
+
+1. Some of the trait/gene pairs in the silver standard are false positives. 
+    - It can be due to the imperfect match between the rare or Mendelian diseases (in which the trait to gene map is established) and the complex trait
+2. For the trait included in the silver standard, silver standard misses many causal genes
+3. Many trait/gene pairs in silver standard data set are estabilished 
+    - On the basis of coding variations (so that may favor genes with bigger coding signal)
+    - On the basis of a *relevant* rare/Mendelian phenotype (so that may favor genes with large effect)
+
+To partially address the limitation, we recommend to perform the silver standard analysis limiting to a specific subset of trait/gene candidates, which are:
+
+1. Nearby GWAS loci
+    - Since this is essentially what people want to figure out, *i.e* what is the molecular mechanism underlying GWAS signals
+    - The cutoff can be less stringent than genome-wide significant cutoff (*e.g.* `5e-8`) if you want to include slightly more candidates (enlarge the data usage)
+2. Nearby silver standard genes
+    - Due to the sparse nature of silver standard (lots of false negatives), a locus without silver standard gene can still harbor a causal gene which is just missed by the imperfect silver standard. 
+    In this case, we say that silver standard does not have the ability to evaluate such locus.
+    - So that we exclude trait/gene candidates far away from silver standard (*i.e.* not in the same GWAS locus)
+
+We implement the criteria to include a trait/gene candidates as mentioned above in the **pre-processing** step in the silver standard function.
+To do so, you should provide extra input: 1. GWAS loci by trait, and 2. gene annotation telling the position of the gene along the genome (don't worry, this is provided along with the package).
+
+Although we've introduced the extra pre-processing step to reduce the limitation of the imperfect silver standard, you should  be cautious that the analysis is still far from perfect. 
+For instance, we think that to use silver standard for evaluation of performance 
+    - Could be conservative in estimating the precision
+    - Could favor methods assigning more weights to coding variations
+    - Could favor methods with conservative nature (select genes with large effect and tend not to select genes with weaker effect)
+    
+# An working example
+
+Here we show you a self-contained working example to guide you through the silver standard analysis pipeline.
+For the sake of simplicity, we perform the silver standard analysis stated in [GTEx GWAS paper](https://www.biorxiv.org/content/10.1101/814350v1) using rare variant-based silver standard.
+
+## Step 0: load silver standard
+
+```{r step0}
+data("rare_variant_based_silver_standard")
+```
+
+## Step 1: prepare your score table and map table
+
+The rare variant-based silver standard includes only height and some lipid traits.
+So that we hand pick the relevant traits from GTEx GWAS paper and hand code the *best* match (to our knowledge) EFO and HPO terms for them.
+
+*Note that* we are somewhat cheating here since we know the silver standard too well and we know which EFO/HPO terms are used there. 
+To get a general sense on what the silver standard contains and what EFO/HPO terms to use the achieve reasonable mapping, please take a look at [this post](about_silver_standard.html).
+
+```{r step1 map}
+map_table = data.frame(
+  trait = c('UKB_50_Standing_height', 'GLGC_Mc_LDL', 'GLGC_Mc_HDL', 'GLGC_Mc_TG', 'UKB_20002_1473_self_reported_high_cholesterol'),
+  EFO = c('EFO:0004339', 'EFO:0004611', 'EFO:0004612', 'EFO:0004530', NA),
+  HPO = c(NA, NA, NA, NA, 'HP:0003119')
+)
+map_table %>% pander(caption = 'Map table')
+```
+
+Then, we should prepare the score table. 
+PrediXcan and enloc were ran transcriptome-wide (include all 'cis-heritable genes'), we query the results in BigQuery and select the "best" signal across all 49 tissues for each trait-gene pair. 
+
+```{r step1 score}
+library(bigrquery)
+sql_predixcan = "SELECT gene, phenotype, zscore from (select gene, phenotype, ARRAY_AGG(zscore order by abs(zscore) desc limit 1) arr FROM `gtex-awg-im.GTEx_V8_PF_MASHR_EUR_v1.spredixcan_eqtl` where phenotype in ('UKB_50_Standing_height', 'GLGC_Mc_LDL', 'GLGC_Mc_HDL', 'GLGC_Mc_TG', 'UKB_20002_1473_self_reported_high_cholesterol') group by gene, phenotype), unnest(arr) zscore"
+sql_enloc = "SELECT molecular_qtl_trait, phenotype, locus_rcp from (select molecular_qtl_trait, phenotype, ARRAY_AGG(locus_rcp order by locus_rcp desc limit 1) arr FROM `gtex-awg-im.GTEx_V8_ENLOC.enloc_eqtl_eur` where phenotype in ('UKB_50_Standing_height', 'GLGC_Mc_LDL', 'GLGC_Mc_HDL', 'GLGC_Mc_TG', 'UKB_20002_1473_self_reported_high_cholesterol') group by molecular_qtl_trait, phenotype), unnest(arr) locus_rcp"
+tb_predixcan = bq_dataset_query(bq_dataset('gtex-awg-im', 'GTEx_V8_PF_MASHR_EUR_v1'), query = sql_predixcan)
+tb_enloc = bq_dataset_query(bq_dataset('gtex-awg-im', 'GTEx_V8_ENLOC'), query = sql_enloc)
+df_predixcan = bq_table_download(tb_predixcan)
+df_enloc = bq_table_download(tb_enloc)
+df_predixcan = df_predixcan %>% mutate(gene = unlist(lapply(strsplit(gene, '\\.'), function(x) {x[1]})))
+df_enloc = df_enloc %>% rename(gene = molecular_qtl_trait) %>% mutate(gene = unlist(lapply(strsplit(gene, '\\.'), function(x) {x[1]})))
+score_table_predixcan = df_predixcan %>% mutate(predixcan_abs_zscore = abs(zscore)) %>% select(phenotype, gene, predixcan_abs_zscore) %>% rename(trait = phenotype)
+score_table_enloc = df_enloc %>% select(phenotype, gene, locus_rcp) %>% rename(trait = phenotype, enloc_rcp = locus_rcp)
+score_table_predixcan = as.data.frame(score_table_predixcan)
+score_table_enloc = as.data.frame(score_table_enloc)
+```
+
+Note that only cis-heritable genes are included in the BigQuery table.
+In the GTEx GWAS paper, we included all protein coding genes including non-cis-heritable genes (we set their scores to zeros)
+To do so, we need to load the gene annotation file including all genes
+
+```{r step1 addzcore}
+data('gene_annotation_gencode_v26_hg38')
+protein_coding_genes = gene_annotation_gencode_v26_hg38$gene_annotation %>% filter(gene_type == 'protein_coding') %>% pull(gene_id)
+score_table_predixcan = score_table_predixcan %>% filter(gene %in% protein_coding_genes)
+score_table_enloc = score_table_enloc %>% filter(gene %in% protein_coding_genes)
+for(t in unique(score_table_predixcan$trait)) {
+  extra_predixcan = data.frame(trait = t, gene = protein_coding_genes[!protein_coding_genes %in% (score_table_predixcan %>% filter(trait == t) %>% pull(gene))], predixcan_abs_zscore = 0)
+  extra_enloc = data.frame(trait = t, gene = protein_coding_genes[!protein_coding_genes %in% (score_table_enloc %>% filter(trait == t) %>% pull(gene))], enloc_rcp = 0)
+  score_table_predixcan = rbind(score_table_predixcan, extra_predixcan)
+  score_table_enloc = rbind(score_table_enloc, extra_enloc)
+}
+score_table = inner_join(score_table_enloc, score_table_predixcan, by = c('trait', 'gene'))
+score_table %>% head %>% pander(caption = 'score table')
+```
+
+## Step 2: Prepare GWAS locus
+
+Following the GTEx GWAS paper, we define GWAS loci as LD block (by [Berisa et al](https://academic.oup.com/bioinformatics/article/32/2/283/1743626)) containing variants with p-value < 5e-8.
+Again, we query the results in BigQuery to extract GWAS signals
+
+
+```{r step2 signal}
+sql_gwas = "SELECT * FROM `gtex-awg-im.GWAS_all.formatted_gwas` where phenotype in ('UKB_50_Standing_height', 'GLGC_Mc_LDL', 'GLGC_Mc_HDL', 'GLGC_Mc_TG', 'UKB_20002_1473_self_reported_high_cholesterol') and pvalue < 5e-8"
+tb_gwas = bq_dataset_query(bq_dataset('gtex-awg-im', 'GWAS_all'), query = sql_gwas)
+df_gwas = bq_table_download(tb_gwas)
+df_gwas = as.data.frame(df_gwas)
+gwas_lead = df_gwas %>% select(chromosome , position, panel_variant_id, trait = phenotype)
+gwas_lead %>% head %>% pander(caption = 'GWAS signal in data.frame')
+```
+
+In principle, you can define the GWAS locus using your own definition. 
+For your convenience, we provide a function to extract LD blocks containing GWAS signals as the set of GWAS loci for downstream analysis.
+
+```{r step2 locus}
+df_gwas = SilverStandardPerformance:::gwas_hit_to_gwas_loci_by_ld_block(gwas_hit = gwas_lead, ld_block_pickrell_eur_b38)
+df_gwas %>% head %>% pander(caption = 'GWAS loci')
+```
+
+## Step 3: perform silver standard analysis
+
+Now that you've prepared everything you need.
+
+```{r step3}
+out = silver_standard_proto(score_table, map_table, rare_variant_based_silver_standard, df_gwas, gene_annotation_gencode_v26_hg38$gene_annotation, trait_codes = c('EFO', 'HPO'))
+out$roc_auc %>% pander(caption = 'ROC AUC')
+out$pr + ggtitle('Precision-recall curve')
+out$roc + ggtitle('ROC curve')
+```
+
+# Some caveats
+
+When using the pre-processing functionality, please be aware of the fact that it relies on genomic position (GWAS locus is defined as a genomic region).
+So, the genome assembly version really matters.
+At the minimal, the two input variables required for pre-processing: `gwas_loci` and `gene_annotation` should use the same genome assembly version. 
+The best practice is to use the gene annotation provided by the package, *e.g.* `gene_annotation_gencode_v26_hg38`, which uses hg38. 
+Other gene annotations are under-development (without guarantee) and we really encourage people to contribute new gene annotations (a better one? one with other version, hg19?)
+If you want to contribute, please take a look at the help page of current annotation (for instance, you can type `?gene_annotation_gencode_v26_hg38` in R environment) for how it is structured. 
+
+Similarly, the handy function `SilverStandardPerformance:::gwas_hit_to_gwas_loci_by_ld_block` converting GWAS signals (position of GWAS significant SNPs) to GWAS loci on the basis of LD block is also genome assembly version sensitive. 
+Currently, we only have one LD block dataset shared along with the package, `ld_block_pickrell_eur_b38`, which is based on [Berisa et al](https://academic.oup.com/bioinformatics/article/32/2/283/1743626).
+The LD block is for Europeans and it is in hg38.
+Again, we encourage people to contribute other LD blocks (in other population? one with other version, hg19?)

@@ -99,7 +99,7 @@ map_table2 %>% head %>% pander(caption = 'trait to HPO')
 ## Join by phecode
 
 ```{r silver1}
-o = silver_standard_proto(score_table, map_table, omim_based_silver_standard, trait_code = 'phecode')
+o = silver_standard_proto(score_table, map_table, omim_based_silver_standard, trait_codes = 'phecode')
 o$pr + ggtitle('PR by phecode')
 o$roc + ggtitle('ROC by phecode')
 o$roc_auc %>% pander('ROC AUC')
@@ -108,7 +108,7 @@ o$roc_auc %>% pander('ROC AUC')
 ## Join by HPO
 
 ```{r silver2}
-o = silver_standard_proto(score_table, map_table2, omim_based_silver_standard, trait_code = 'HPO')
+o = silver_standard_proto(score_table, map_table2, omim_based_silver_standard, trait_codes = 'HPO')
 o$pr + ggtitle('PR by HPO')
 o$roc + ggtitle('ROC by HPO')
 o$roc_auc %>% pander('ROC AUC')

@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Example run of silver standard analysis with pre-processing</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">SilverStandardPerformance documentation</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/liangyy/silver-standard-performance">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Example run of silver standard analysis with pre-processing</h1>
+<h4 class="date">25 November, 2019</h4>
+
+</div>
+
+
+<pre class="r"><code>rm(list = ls())
+library(ggplot2)
+library(dplyr)
+library(pander)
+panderOptions(&#39;table.split.table&#39;, Inf)</code></pre>
+<div id="install" class="section level1">
+<h1><span class="header-section-number">1</span> Install</h1>
+<p>Install <code>SilverStandardPerformance</code></p>
+<pre class="r"><code>devtools::install_github(&#39;liangyy/silver-standard-performance&#39;)</code></pre>
+<pre><code>## Skipping install of &#39;SilverStandardPerformance&#39; from a github remote, the SHA1 (9111a721) has not changed since last install.
+##   Use `force = TRUE` to force installation</code></pre>
+<pre class="r"><code>library(SilverStandardPerformance)</code></pre>
+</div>
+<div id="about-pre-processing-step-in-analysis-pipeline" class="section level1">
+<h1><span class="header-section-number">2</span> About pre-processing step in analysis pipeline</h1>
+<p>Silver standard has several limitations. And here is a incomplete list of these limitations:</p>
+<ol style="list-style-type: decimal">
+<li>Some of the trait/gene pairs in the silver standard are false positives.
+<ul>
+<li>It can be due to the imperfect match between the rare or Mendelian diseases (in which the trait to gene map is established) and the complex trait</li>
+</ul></li>
+<li>For the trait included in the silver standard, silver standard misses many causal genes</li>
+<li>Many trait/gene pairs in silver standard data set are estabilished
+<ul>
+<li>On the basis of coding variations (so that may favor genes with bigger coding signal)</li>
+<li>On the basis of a <em>relevant</em> rare/Mendelian phenotype (so that may favor genes with large effect)</li>
+</ul></li>
+</ol>
+<p>To partially address the limitation, we recommend to perform the silver standard analysis limiting to a specific subset of trait/gene candidates, which are:</p>
+<ol style="list-style-type: decimal">
+<li>Nearby GWAS loci
+<ul>
+<li>Since this is essentially what people want to figure out, <em>i.e</em> what is the molecular mechanism underlying GWAS signals</li>
+<li>The cutoff can be less stringent than genome-wide significant cutoff (<em>e.g.</em> <code>5e-8</code>) if you want to include slightly more candidates (enlarge the data usage)</li>
+</ul></li>
+<li>Nearby silver standard genes
+<ul>
+<li>Due to the sparse nature of silver standard (lots of false negatives), a locus without silver standard gene can still harbor a causal gene which is just missed by the imperfect silver standard. In this case, we say that silver standard does not have the ability to evaluate such locus.</li>
+<li>So that we exclude trait/gene candidates far away from silver standard (<em>i.e.</em> not in the same GWAS locus)</li>
+</ul></li>
+</ol>
+<p>We implement the criteria to include a trait/gene candidates as mentioned above in the <strong>pre-processing</strong> step in the silver standard function. To do so, you should provide extra input: 1. GWAS loci by trait, and 2. gene annotation telling the position of the gene along the genome (don’t worry, this is provided along with the package).</p>
+<p>Although we’ve introduced the extra pre-processing step to reduce the limitation of the imperfect silver standard, you should be cautious that the analysis is still far from perfect. For instance, we think that to use silver standard for evaluation of performance - Could be conservative in estimating the precision - Could favor methods assigning more weights to coding variations - Could favor methods with conservative nature (select genes with large effect and tend not to select genes with weaker effect)</p>
+</div>
+<div id="an-working-example" class="section level1">
+<h1><span class="header-section-number">3</span> An working example</h1>
+<p>Here we show you a self-contained working example to guide you through the silver standard analysis pipeline. For the sake of simplicity, we perform the silver standard analysis stated in <a href="https://www.biorxiv.org/content/10.1101/814350v1">GTEx GWAS paper</a> using rare variant-based silver standard.</p>
+<div id="step-0-load-silver-standard" class="section level2">
+<h2><span class="header-section-number">3.1</span> Step 0: load silver standard</h2>
+<pre class="r"><code>data(&quot;rare_variant_based_silver_standard&quot;)</code></pre>
+</div>
+<div id="step-1-prepare-your-score-table-and-map-table" class="section level2">
+<h2><span class="header-section-number">3.2</span> Step 1: prepare your score table and map table</h2>
+<p>The rare variant-based silver standard includes only height and some lipid traits. So that we hand pick the relevant traits from GTEx GWAS paper and hand code the <em>best</em> match (to our knowledge) EFO and HPO terms for them.</p>
+<p><em>Note that</em> we are somewhat cheating here since we know the silver standard too well and we know which EFO/HPO terms are used there. To get a general sense on what the silver standard contains and what EFO/HPO terms to use the achieve reasonable mapping, please take a look at <a href="about_silver_standard.html">this post</a>.</p>
+<pre class="r"><code>map_table = data.frame(
+  trait = c(&#39;UKB_50_Standing_height&#39;, &#39;GLGC_Mc_LDL&#39;, &#39;GLGC_Mc_HDL&#39;, &#39;GLGC_Mc_TG&#39;, &#39;UKB_20002_1473_self_reported_high_cholesterol&#39;),
+  EFO = c(&#39;EFO:0004339&#39;, &#39;EFO:0004611&#39;, &#39;EFO:0004612&#39;, &#39;EFO:0004530&#39;, NA),
+  HPO = c(NA, NA, NA, NA, &#39;HP:0003119&#39;)
+)
+map_table %&gt;% pander(caption = &#39;Map table&#39;)</code></pre>
+<table>
+<caption>Map table</caption>
+<colgroup>
+<col width="63%" />
+<col width="18%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">trait</th>
+<th align="center">EFO</th>
+<th align="center">HPO</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">UKB_50_Standing_height</td>
+<td align="center">EFO:0004339</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">GLGC_Mc_LDL</td>
+<td align="center">EFO:0004611</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="center">GLGC_Mc_HDL</td>
+<td align="center">EFO:0004612</td>
+<td align="center">NA</td>
+</tr>
+<tr class="even">
+<td align="center">GLGC_Mc_TG</td>
+<td align="center">EFO:0004530</td>
+<td align="center">NA</td>
+</tr>
+<tr class="odd">
+<td align="center">UKB_20002_1473_self_reported_high_cholesterol</td>
+<td align="center">NA</td>
+<td align="center">HP:0003119</td>
+</tr>
+</tbody>
+</table>
+<p>Then, we should prepare the score table. PrediXcan and enloc were ran transcriptome-wide (include all ‘cis-heritable genes’), we query the results in BigQuery and select the “best” signal across all 49 tissues for each trait-gene pair.</p>
+<pre class="r"><code>library(bigrquery)
+sql_predixcan = &quot;SELECT gene, phenotype, zscore from (select gene, phenotype, ARRAY_AGG(zscore order by abs(zscore) desc limit 1) arr FROM `gtex-awg-im.GTEx_V8_PF_MASHR_EUR_v1.spredixcan_eqtl` where phenotype in (&#39;UKB_50_Standing_height&#39;, &#39;GLGC_Mc_LDL&#39;, &#39;GLGC_Mc_HDL&#39;, &#39;GLGC_Mc_TG&#39;, &#39;UKB_20002_1473_self_reported_high_cholesterol&#39;) group by gene, phenotype), unnest(arr) zscore&quot;
+sql_enloc = &quot;SELECT molecular_qtl_trait, phenotype, locus_rcp from (select molecular_qtl_trait, phenotype, ARRAY_AGG(locus_rcp order by locus_rcp desc limit 1) arr FROM `gtex-awg-im.GTEx_V8_ENLOC.enloc_eqtl_eur` where phenotype in (&#39;UKB_50_Standing_height&#39;, &#39;GLGC_Mc_LDL&#39;, &#39;GLGC_Mc_HDL&#39;, &#39;GLGC_Mc_TG&#39;, &#39;UKB_20002_1473_self_reported_high_cholesterol&#39;) group by molecular_qtl_trait, phenotype), unnest(arr) locus_rcp&quot;
+tb_predixcan = bq_dataset_query(bq_dataset(&#39;gtex-awg-im&#39;, &#39;GTEx_V8_PF_MASHR_EUR_v1&#39;), query = sql_predixcan)</code></pre>
+<pre><code>## Complete</code></pre>
+<pre><code>## Billed: 0 B</code></pre>
+<pre class="r"><code>tb_enloc = bq_dataset_query(bq_dataset(&#39;gtex-awg-im&#39;, &#39;GTEx_V8_ENLOC&#39;), query = sql_enloc)</code></pre>
+<pre><code>## Complete
+## Billed: 0 B</code></pre>
+<pre class="r"><code>df_predixcan = bq_table_download(tb_predixcan)</code></pre>
+<pre><code>## Downloading 112,512 rows in 12 pages.</code></pre>
+<pre><code>## Downloading data [==&gt;-------------------------------------] 8% ETA: 18s
+## Downloading data [======&gt;---------------------------------] 17% ETA: 8s
+## Downloading data [=========&gt;------------------------------] 25% ETA: 5s
+## Downloading data [============&gt;---------------------------] 33% ETA: 3s
+## Downloading data [================&gt;-----------------------] 42% ETA: 2s
+## Downloading data [===================&gt;--------------------] 50% ETA: 2s
+## Downloading data [======================&gt;-----------------] 58% ETA: 2s
+## Downloading data [==========================&gt;-------------] 67% ETA: 1s
+## Downloading data [=============================&gt;----------] 75% ETA: 1s
+## Downloading data [================================&gt;-------] 83% ETA: 1s
+## Downloading data [====================================&gt;---] 92% ETA: 0s
+## Downloading data [========================================] 100% ETA: 0s</code></pre>
+<pre><code>## 
+Parsing [=====-------------------------------------------------] ETA:  0s
+Parsing [======================================================] ETA:  0s
+                                                                         </code></pre>
+<pre class="r"><code>df_enloc = bq_table_download(tb_enloc)</code></pre>
+<pre><code>## Downloading 38,570 rows in 4 pages.
+## 
+Downloading data [=========&gt;------------------------------]  25% ETA:  3s
+Downloading data [===================&gt;--------------------]  50% ETA:  1s
+Downloading data [=============================&gt;----------]  75% ETA:  0s
+Downloading data [========================================] 100% ETA:  0s
+                                                                         </code></pre>
+<pre><code>## 
+Parsing [==============----------------------------------------] ETA:  0s
+Parsing [======================================================] ETA:  0s
+                                                                         </code></pre>
+<pre class="r"><code>df_predixcan = df_predixcan %&gt;% mutate(gene = unlist(lapply(strsplit(gene, &#39;\\.&#39;), function(x) {x[1]})))
+df_enloc = df_enloc %&gt;% rename(gene = molecular_qtl_trait) %&gt;% mutate(gene = unlist(lapply(strsplit(gene, &#39;\\.&#39;), function(x) {x[1]})))
+score_table_predixcan = df_predixcan %&gt;% mutate(predixcan_abs_zscore = abs(zscore)) %&gt;% select(phenotype, gene, predixcan_abs_zscore) %&gt;% rename(trait = phenotype)
+score_table_enloc = df_enloc %&gt;% select(phenotype, gene, locus_rcp) %&gt;% rename(trait = phenotype, enloc_rcp = locus_rcp)
+score_table_predixcan = as.data.frame(score_table_predixcan)
+score_table_enloc = as.data.frame(score_table_enloc)</code></pre>
+<p>Note that only cis-heritable genes are included in the BigQuery table. In the GTEx GWAS paper, we included all protein coding genes including non-cis-heritable genes (we set their scores to zeros) To do so, we need to load the gene annotation file including all genes</p>
+<pre class="r"><code>data(&#39;gene_annotation_gencode_v26_hg38&#39;)
+protein_coding_genes = gene_annotation_gencode_v26_hg38$gene_annotation %&gt;% filter(gene_type == &#39;protein_coding&#39;) %&gt;% pull(gene_id)
+score_table_predixcan = score_table_predixcan %&gt;% filter(gene %in% protein_coding_genes)
+score_table_enloc = score_table_enloc %&gt;% filter(gene %in% protein_coding_genes)
+for(t in unique(score_table_predixcan$trait)) {
+  extra_predixcan = data.frame(trait = t, gene = protein_coding_genes[!protein_coding_genes %in% (score_table_predixcan %&gt;% filter(trait == t) %&gt;% pull(gene))], predixcan_abs_zscore = 0)
+  extra_enloc = data.frame(trait = t, gene = protein_coding_genes[!protein_coding_genes %in% (score_table_enloc %&gt;% filter(trait == t) %&gt;% pull(gene))], enloc_rcp = 0)
+  score_table_predixcan = rbind(score_table_predixcan, extra_predixcan)
+  score_table_enloc = rbind(score_table_enloc, extra_enloc)
+}
+score_table = inner_join(score_table_enloc, score_table_predixcan, by = c(&#39;trait&#39;, &#39;gene&#39;))
+score_table %&gt;% head %&gt;% pander(caption = &#39;score table&#39;)</code></pre>
+<table style="width:92%;">
+<caption>score table</caption>
+<colgroup>
+<col width="18%" />
+<col width="25%" />
+<col width="16%" />
+<col width="31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">trait</th>
+<th align="center">gene</th>
+<th align="center">enloc_rcp</th>
+<th align="center">predixcan_abs_zscore</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">GLGC_Mc_TG</td>
+<td align="center">ENSG00000237289</td>
+<td align="center">0.008</td>
+<td align="center">4.367</td>
+</tr>
+<tr class="even">
+<td align="center">GLGC_Mc_TG</td>
+<td align="center">ENSG00000149634</td>
+<td align="center">0.85</td>
+<td align="center">10.39</td>
+</tr>
+<tr class="odd">
+<td align="center">GLGC_Mc_TG</td>
+<td align="center">ENSG00000256229</td>
+<td align="center">0.01</td>
+<td align="center">4.66</td>
+</tr>
+<tr class="even">
+<td align="center">GLGC_Mc_TG</td>
+<td align="center">ENSG00000137171</td>
+<td align="center">0</td>
+<td align="center">1.445</td>
+</tr>
+<tr class="odd">
+<td align="center">GLGC_Mc_TG</td>
+<td align="center">ENSG00000149930</td>
+<td align="center">0</td>
+<td align="center">2.056</td>
+</tr>
+<tr class="even">
+<td align="center">GLGC_Mc_TG</td>
+<td align="center">ENSG00000196666</td>
+<td align="center">0.001</td>
+<td align="center">3.603</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="step-2-prepare-gwas-locus" class="section level2">
+<h2><span class="header-section-number">3.3</span> Step 2: Prepare GWAS locus</h2>
+<p>Following the GTEx GWAS paper, we define GWAS loci as LD block (by <a href="https://academic.oup.com/bioinformatics/article/32/2/283/1743626">Berisa et al</a>) containing variants with p-value &lt; 5e-8. Again, we query the results in BigQuery to extract GWAS signals</p>
+<pre class="r"><code>sql_gwas = &quot;SELECT * FROM `gtex-awg-im.GWAS_all.formatted_gwas` where phenotype in (&#39;UKB_50_Standing_height&#39;, &#39;GLGC_Mc_LDL&#39;, &#39;GLGC_Mc_HDL&#39;, &#39;GLGC_Mc_TG&#39;, &#39;UKB_20002_1473_self_reported_high_cholesterol&#39;) and pvalue &lt; 5e-8&quot;
+tb_gwas = bq_dataset_query(bq_dataset(&#39;gtex-awg-im&#39;, &#39;GWAS_all&#39;), query = sql_gwas)</code></pre>
+<pre><code>## Complete</code></pre>
+<pre><code>## Billed: 0 B</code></pre>
+<pre class="r"><code>df_gwas = bq_table_download(tb_gwas)</code></pre>
+<pre><code>## Downloading 156,133 rows in 16 pages.</code></pre>
+<pre><code>## Downloading data [=&gt;--------------------------------------] 6% ETA: 32s
+## Downloading data [====&gt;-----------------------------------] 12% ETA: 16s
+## Downloading data [=======&gt;--------------------------------] 19% ETA: 22s
+## Downloading data [=========&gt;------------------------------] 25% ETA: 15s
+## Downloading data [===========&gt;----------------------------] 31% ETA: 12s
+## Downloading data [==============&gt;-------------------------] 38% ETA: 9s
+## Downloading data [=================&gt;----------------------] 44% ETA: 8s
+## Downloading data [===================&gt;--------------------] 50% ETA: 6s
+## Downloading data [=====================&gt;------------------] 56% ETA: 6s
+## Downloading data [========================&gt;---------------] 62% ETA: 5s
+## Downloading data [===========================&gt;------------] 69% ETA: 4s
+## Downloading data [=============================&gt;----------] 75% ETA: 3s
+## Downloading data [===============================&gt;--------] 81% ETA: 2s
+## Downloading data [==================================&gt;-----] 88% ETA: 2s
+## Downloading data [=====================================&gt;--] 94% ETA: 1s
+## Downloading data [========================================] 100% ETA: 0s</code></pre>
+<pre><code>## 
+Parsing [===---------------------------------------------------] ETA:  0s
+Parsing [========================------------------------------] ETA:  0s
+Parsing [===========================---------------------------] ETA:  0s
+Parsing [==============================------------------------] ETA:  0s
+Parsing [==================================--------------------] ETA:  0s
+Parsing [=====================================-----------------] ETA:  0s
+Parsing [=========================================-------------] ETA:  0s
+Parsing [============================================----------] ETA:  0s
+Parsing [===============================================-------] ETA:  0s
+Parsing [===================================================---] ETA:  0s
+Parsing [======================================================] ETA:  0s
+                                                                         </code></pre>
+<pre class="r"><code>df_gwas = as.data.frame(df_gwas)
+gwas_lead = df_gwas %&gt;% select(chromosome , position, panel_variant_id, trait = phenotype)
+gwas_lead %&gt;% head %&gt;% pander(caption = &#39;GWAS signal in data.frame&#39;)</code></pre>
+<table style="width:86%;">
+<caption>GWAS signal in data.frame</caption>
+<colgroup>
+<col width="18%" />
+<col width="15%" />
+<col width="33%" />
+<col width="19%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">chromosome</th>
+<th align="center">position</th>
+<th align="center">panel_variant_id</th>
+<th align="center">trait</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">chr1</td>
+<td align="center">39238175</td>
+<td align="center">chr1_39238175_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+</tr>
+<tr class="even">
+<td align="center">chr1</td>
+<td align="center">39282599</td>
+<td align="center">chr1_39282599_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+</tr>
+<tr class="odd">
+<td align="center">chr1</td>
+<td align="center">39380595</td>
+<td align="center">chr1_39380595_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+</tr>
+<tr class="even">
+<td align="center">chr1</td>
+<td align="center">39429788</td>
+<td align="center">chr1_39429788_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+</tr>
+<tr class="odd">
+<td align="center">chr1</td>
+<td align="center">39442834</td>
+<td align="center">chr1_39442834_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+</tr>
+<tr class="even">
+<td align="center">chr1</td>
+<td align="center">39599289</td>
+<td align="center">chr1_39599289_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+</tr>
+</tbody>
+</table>
+<p>In principle, you can define the GWAS locus using your own definition. For your convenience, we provide a function to extract LD blocks containing GWAS signals as the set of GWAS loci for downstream analysis.</p>
+<pre class="r"><code>df_gwas = SilverStandardPerformance:::gwas_hit_to_gwas_loci_by_ld_block(gwas_hit = gwas_lead, ld_block_pickrell_eur_b38)</code></pre>
+<pre><code>## The genome assembly version of ld block is hg38. Please make sure your gwas_hit matches the version!</code></pre>
+<pre class="r"><code>df_gwas %&gt;% head %&gt;% pander(caption = &#39;GWAS loci&#39;)</code></pre>
+<table>
+<caption>GWAS loci</caption>
+<colgroup>
+<col width="13%" />
+<col width="11%" />
+<col width="24%" />
+<col width="14%" />
+<col width="14%" />
+<col width="11%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">chromosome</th>
+<th align="center">position</th>
+<th align="center">panel_variant_id</th>
+<th align="center">trait</th>
+<th align="center">region_name</th>
+<th align="center">start</th>
+<th align="center">end</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">chr1</td>
+<td align="center">39238175</td>
+<td align="center">chr1_39238175_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+<td align="center">chr1_24</td>
+<td align="center">38266175</td>
+<td align="center">39734895</td>
+</tr>
+<tr class="even">
+<td align="center">chr1</td>
+<td align="center">39282599</td>
+<td align="center">chr1_39282599_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+<td align="center">chr1_24</td>
+<td align="center">38266175</td>
+<td align="center">39734895</td>
+</tr>
+<tr class="odd">
+<td align="center">chr1</td>
+<td align="center">39380595</td>
+<td align="center">chr1_39380595_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+<td align="center">chr1_24</td>
+<td align="center">38266175</td>
+<td align="center">39734895</td>
+</tr>
+<tr class="even">
+<td align="center">chr1</td>
+<td align="center">39429788</td>
+<td align="center">chr1_39429788_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+<td align="center">chr1_24</td>
+<td align="center">38266175</td>
+<td align="center">39734895</td>
+</tr>
+<tr class="odd">
+<td align="center">chr1</td>
+<td align="center">39442834</td>
+<td align="center">chr1_39442834_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+<td align="center">chr1_24</td>
+<td align="center">38266175</td>
+<td align="center">39734895</td>
+</tr>
+<tr class="even">
+<td align="center">chr1</td>
+<td align="center">39599289</td>
+<td align="center">chr1_39599289_G_A_b38</td>
+<td align="center">GLGC_Mc_HDL</td>
+<td align="center">chr1_24</td>
+<td align="center">38266175</td>
+<td align="center">39734895</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="step-3-perform-silver-standard-analysis" class="section level2">
+<h2><span class="header-section-number">3.4</span> Step 3: perform silver standard analysis</h2>
+<p>Now that you’ve prepared everything you need.</p>
+<pre class="r"><code>out = silver_standard_proto(score_table, map_table, rare_variant_based_silver_standard, df_gwas, gene_annotation_gencode_v26_hg38$gene_annotation, trait_codes = c(&#39;EFO&#39;, &#39;HPO&#39;))</code></pre>
+<pre><code>## Run with silver standard from: gen_ewas_rare_variant_gene_list.R</code></pre>
+<pre><code>## Map trait by: EFO ,HPO</code></pre>
+<pre><code>## Mapper chosen: greedy_map</code></pre>
+<pre><code>## Extracting all columns of score_table other than &quot;trait&quot; and &quot;gene&quot; as scores</code></pre>
+<pre><code>## 2 score columns are used</code></pre>
+<pre><code>## # trait-gene pairs in score table before step 2: 98995</code></pre>
+<pre><code>## Start pre-processing step: limit to (1) GWAS loci with silver standard genes and (2) genes overlapping in selected GWAS loci</code></pre>
+<pre><code>## Pre-processing step 1: select GWAS loci with silver standard genes</code></pre>
+<pre><code>## Pre-processing step 2: select candidate gens overlapping selected GWAS loci</code></pre>
+<pre><code>## # trait-gene pairs in score table after step 2: 1572</code></pre>
+<pre class="r"><code>out$roc_auc %&gt;% pander(caption = &#39;ROC AUC&#39;)</code></pre>
+<table style="width:46%;">
+<caption>ROC AUC</caption>
+<colgroup>
+<col width="13%" />
+<col width="31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">roc_auc</th>
+<th align="center">score</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0.7544</td>
+<td align="center">enloc_rcp</td>
+</tr>
+<tr class="even">
+<td align="center">0.7426</td>
+<td align="center">predixcan_abs_zscore</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>out$pr + ggtitle(&#39;Precision-recall curve&#39;)</code></pre>
+<p><img src="example_with_preprocessing_files/figure-html/step3-1.png" width="672" /></p>
+<pre class="r"><code>out$roc + ggtitle(&#39;ROC curve&#39;)</code></pre>
+<p><img src="example_with_preprocessing_files/figure-html/step3-2.png" width="672" /></p>
+</div>
+</div>
+<div id="some-caveats" class="section level1">
+<h1><span class="header-section-number">4</span> Some caveats</h1>
+<p>When using the pre-processing functionality, please be aware of the fact that it relies on genomic position (GWAS locus is defined as a genomic region). So, the genome assembly version really matters. At the minimal, the two input variables required for pre-processing: <code>gwas_loci</code> and <code>gene_annotation</code> should use the same genome assembly version. The best practice is to use the gene annotation provided by the package, <em>e.g.</em> <code>gene_annotation_gencode_v26_hg38</code>, which uses hg38. Other gene annotations are under-development (without guarantee) and we really encourage people to contribute new gene annotations (a better one? one with other version, hg19?) If you want to contribute, please take a look at the help page of current annotation (for instance, you can type <code>?gene_annotation_gencode_v26_hg38</code> in R environment) for how it is structured.</p>
+<p>Similarly, the handy function <code>SilverStandardPerformance:::gwas_hit_to_gwas_loci_by_ld_block</code> converting GWAS signals (position of GWAS significant SNPs) to GWAS loci on the basis of LD block is also genome assembly version sensitive. Currently, we only have one LD block dataset shared along with the package, <code>ld_block_pickrell_eur_b38</code>, which is based on <a href="https://academic.oup.com/bioinformatics/article/32/2/283/1743626">Berisa et al</a>. The LD block is for Europeans and it is in hg38. Again, we encourage people to contribute other LD blocks (in other population? one with other version, hg19?)</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
