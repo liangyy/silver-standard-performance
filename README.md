@@ -146,3 +146,53 @@ The above command gives rise to the following data.frame in `gwas_loci`.
 |    chr2    | 219129545 | UKB_50_Standing_height | chr2_219129545_G_A_b38  |  chr2_129   | 217530757 | 219589829 |
 
 , where the additional three columns (at the very right) are the annotated LD blocks for each GWAS variant which can be used as GWAS loci for downstream analysis. 
+
+### Step 4: Perform the actual analysis
+
+Once you prepared the data.frame containing scores (*e.g.* `score_table`) and the data.frame mapping trait to phenotype ontology (*e.g.* `map_table`), it is time to perform the actual analysis using function `silver_standard_performance`.
+
+Before running, you need to select a silver standard.
+To see what silver standard datasets are available, you can type
+
+```
+> data(package = 'SilverStandardPerformance')
+```
+in R console.
+The ones named as `*_silver_standard` are the available silver standards.
+
+Suppose `omim_based_silver_standard` is selected to run the analysis, then all you need to do is:
+
+```
+> data("omim_based_silver_standard")
+> output = silver_standard_performance(
+    score_table = score_table, 
+    map_table = map_table,
+    silver_standard = omim_based_silver_standard,
+    trait_codes = c('HPO', 'phecode')  # suppose you want to map the your traits to silver standard phenotypes using both 'HPO' and 'phecode' (the order does not matter)
+  )
+```
+
+If you want to limit the analysis to a list of GWAS loci (see why you may want to do this [here](https://liangyy.github.io/silver-standard-performance/example_with_preprocessing.html#3_about_pre-processing_step_in_analysis_pipeline)),
+then you can do:
+
+```
+> data("omim_based_silver_standard")
+> # load gene annotation file provided along with the package, which tells the location of each gene
+> data("gene_annotation_gencode_v26_hg38")  
+> output = silver_standard_performance(
+    score_table = score_table, 
+    map_table = map_table,
+    silver_standard = omim_based_silver_standard,  
+    trait_codes = c('HPO', 'phecode'),
+    ##### the additional two inputs required #####
+    # 1. data.frame where each row is a GWAS locus of a trait. 
+    # The genome assembly version should match gene_annotation
+    gwas_loci = gwas_loci,
+    # 2. data.frame of gene annotation provided as a dataset in SilverStandardPerformance
+    gene_annotation = gene_annotation_gencode_v26_hg38$gene_annotation
+  )
+```
+
+The `output` contains PR curves and ROC curves as two `ggplot` objects along with ROC AUCs, see [example](https://liangyy.github.io/silver-standard-performance/example_with_preprocessing.html#44_step_3:_perform_silver_standard_analysis).  
+
+
