@@ -1,5 +1,7 @@
 # script to generate data
 
+library(dplyr)
+
 # data/omim_based_silver_standard.rda
 {
   # download from https://github.com/hakyimlab/gold-standard/blob/master/data/silver_phecode_to_mim.rds
