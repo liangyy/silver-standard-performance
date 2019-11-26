@@ -80,11 +80,11 @@ _Comment: it should be a data.frame in R with one column named as 'trait' and on
 
 |                   trait                   | phecode |     HPO     |
 |:-----------------------------------------:|:-------:|:-----------:|
-|        CARDIoGRAM_C4D_CAD_ADDITIVE        |  411.4  | HPO:0003362 |
-| UKB_G43_Diagnoses_main_ICD10_G43_Migraine |  340.1  | HPO:0002083 |
-| UKB_20002_1309_self_reported_osteoporosis |   743   | HPO:0006462 |
-|           EGG_BMI_HapMapImputed           |  278.1  | HPO:0012743 |
-|                GLGC_Mc_TG                 | 272.12  | HPO:0003362 |
+|        CARDIoGRAM_C4D_CAD_ADDITIVE        |  411.4  | HP:0003362 |
+| UKB_G43_Diagnoses_main_ICD10_G43_Migraine |  340.1  | HP:0002083 |
+| UKB_20002_1309_self_reported_osteoporosis |   743   | HP:0006462 |
+|           EGG_BMI_HapMapImputed           |  278.1  | HP:0012743 |
+|                GLGC_Mc_TG                 | 272.12  | HP:0003362 |
 
 To assign one of the ontolog code to your trait makes the software "understand" what your trait really is. 
 To obtain the ontolog code for your trait, you can go to HPO, EFO (GWAS Catalog website may also work), and phecode websites listed above and search for the relevant terms. 
