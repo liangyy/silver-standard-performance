@@ -107,7 +107,7 @@ If you want to limit the analysis to GWAS loci which overlaps silver standard ge
 _Comment: the required columns are 'chromosome', 'start', 'end', and 'trait'. The additional columns won't be used. **More importantly, the genomic position should be in hg38** (at least its version should match the other input, gene annotation, but currently we only provide gene annotation in hg38)._
 
 **Note that** we do recommend user to enable this pre-processing step in the analysis thanks to the imperfectness of the silver standard. 
-For more information, you can take a look at the discussion [here](https://liangyy.github.io/silver-standard-performance/example_with_preprocessing.html#3_about_pre-processing_step_in_analysis_pipeline).
+For more information, you can take a look at the discussion [here](https://liangyy.github.io/silver-standard-performance/example_with_preprocessing.html#3_about_pre-processing_step_in_analysis_pipeline) and [here](https://github.com/liangyy/silver-standard-performance/blob/master/README.md#additional-note-on-limiting-analysis-to-gwas-loci).
 
 ### Additional note for Step 3: Convert GWAS variant to GWAS locus.
 
@@ -177,7 +177,7 @@ Suppose `omim_based_silver_standard` is selected to run the analysis, then all y
   )
 ```
 
-If you want to limit the analysis to a list of GWAS loci (see why you may want to do this [here](https://liangyy.github.io/silver-standard-performance/example_with_preprocessing.html#3_about_pre-processing_step_in_analysis_pipeline)),
+If you want to limit the analysis to a list of GWAS loci (see why you may want to do this [here](https://liangyy.github.io/silver-standard-performance/example_with_preprocessing.html#3_about_pre-processing_step_in_analysis_pipeline) and [here](https://github.com/liangyy/silver-standard-performance/blob/master/README.md#additional-note-on-limiting-analysis-to-gwas-loci)),
 then you can do:
 
 ```
