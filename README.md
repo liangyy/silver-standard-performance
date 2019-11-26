@@ -130,7 +130,10 @@ Suppose the above table is loaded as data.frame in R console with variable name 
 
 ```
 > data("ld_block_pickrell_eur_b38")
-> gwas_loci = SilverStandardPerformance:::gwas_hit_to_gwas_loci_by_ld_block(gwas_hit = gwas_variants, ld_block = ld_block_pickrell_eur_b38)
+> gwas_loci = SilverStandardPerformance:::gwas_hit_to_gwas_loci_by_ld_block(
+    gwas_hit = gwas_variants, 
+    ld_block = ld_block_pickrell_eur_b38
+  )
 ```
 
 _Comments: `ld_block_pickrell_eur_b38` is the dataset of European LD blocks reported by Berisa et al in hg38. The input `gwas_variants` should use the same version to indicate the genomic position._
@@ -168,7 +171,9 @@ Suppose `omim_based_silver_standard` is selected to run the analysis, then all y
     score_table = score_table, 
     map_table = map_table,
     silver_standard = omim_based_silver_standard,
-    trait_codes = c('HPO', 'phecode')  # suppose you want to map the your traits to silver standard phenotypes using both 'HPO' and 'phecode' (the order does not matter)
+    # suppose you want to map the your traits to silver standard phenotypes using 
+    # both 'HPO' and 'phecode' (the order does not matter)
+    trait_codes = c('HPO', 'phecode')  
   )
 ```
 
@@ -195,4 +200,27 @@ then you can do:
 
 The `output` contains PR curves and ROC curves as two `ggplot` objects along with ROC AUCs, see [example](https://liangyy.github.io/silver-standard-performance/example_with_preprocessing.html#44_step_3:_perform_silver_standard_analysis).  
 
+# Additional note on limiting analysis to GWAS loci
+
+<p align="center">
+  <img src="https://liangyy.github.io/silver-standard-performance/figures/silver-standard-performance.png">
+</p>
+
+Suppose the whole quadrangle represents the all possible trait/gene pairs, and the silver circle in the middle represents the set of trait/gene pairs that are considered as 'causal' in a silver standard.
+The vertical line in the middle is showing how a classifier would split the trait/gene pairs into "positive" and "negative" instances according to a scoring scheme along with the score cutoff.
+
+However, as we discussed [here](https://liangyy.github.io/silver-standard-performance/example_with_preprocessing.html#3_about_pre-processing_step_in_analysis_pipeline), silver standard is imperfect and it contains false positives and more importantly a huge amount of **false negatives**.
+For instance, many genes with milder effect won't cause monogenic disease so that OMIM-based silver standard will completely miss them.
+As another example, if the effect of a gene is mostly via regulatory mechanism or it does not have enough coding variation, it won't be implicated in rare variant-based studies due to un-matched molecular mechanism or lack of statistical power.
+In other word, there are many causal genes in complex traits that are completely missed in current silver standard datasets.
+
+To account for this fact, we suggest to limit the analysis to trait/gene pairs nearby silver standard.
+Here, we make the additional assumption that: **Silver standard trait/gene pair is the only causal one within the locus.**
+In other word, the silver standard trait/gene pair can completely explain the GWAS signal of the locus.
+For trait/gene pairs far from any silver standard, we consider their statuses as "unknown" rather than "not causal", and these instances correspond to the quadrangle labelled with question marks in the figure.
+
+Following this idea, we recommend people to limit the analysis to GWAS loci containing silver standard genes for two reasons:
+
+1. The original goal is to prioritize gene for GWAS hits (we care about interpreting signals rather than interpreting anything);
+2. We should exclude GWAS loci without silver standard genes since the silver standard is really unsure about these regions.
 
