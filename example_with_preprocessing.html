@@ -405,7 +405,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Example run of silver standard analysis with pre-processing</h1>
-<h4 class="date">25 November, 2019</h4>
+<h4 class="date">26 November, 2019</h4>
 
 </div>
 
@@ -419,12 +419,12 @@ panderOptions(&#39;table.split.table&#39;, Inf)</code></pre>
 <h1><span class="header-section-number">1</span> Install</h1>
 <p>Install <code>SilverStandardPerformance</code></p>
 <pre class="r"><code>devtools::install_github(&#39;liangyy/silver-standard-performance&#39;)</code></pre>
-<pre><code>## Skipping install of &#39;SilverStandardPerformance&#39; from a github remote, the SHA1 (9111a721) has not changed since last install.
+<pre><code>## Skipping install of &#39;SilverStandardPerformance&#39; from a github remote, the SHA1 (261551e0) has not changed since last install.
 ##   Use `force = TRUE` to force installation</code></pre>
 <pre class="r"><code>library(SilverStandardPerformance)</code></pre>
 </div>
-<div id="about-pre-processing-step-in-analysis-pipeline" class="section level1">
-<h1><span class="header-section-number">2</span> About pre-processing step in analysis pipeline</h1>
+<div id="limitation-of-the-silver-standard" class="section level1">
+<h1><span class="header-section-number">2</span> Limitation of the silver standard</h1>
 <p>Silver standard has several limitations. And here is a incomplete list of these limitations:</p>
 <ol style="list-style-type: decimal">
 <li>Some of the trait/gene pairs in the silver standard are false positives.
@@ -438,6 +438,9 @@ panderOptions(&#39;table.split.table&#39;, Inf)</code></pre>
 <li>On the basis of a <em>relevant</em> rare/Mendelian phenotype (so that may favor genes with large effect)</li>
 </ul></li>
 </ol>
+</div>
+<div id="about-pre-processing-step-in-analysis-pipeline" class="section level1">
+<h1><span class="header-section-number">3</span> About pre-processing step in analysis pipeline</h1>
 <p>To partially address the limitation, we recommend to perform the silver standard analysis limiting to a specific subset of trait/gene candidates, which are:</p>
 <ol style="list-style-type: decimal">
 <li>Nearby GWAS loci
@@ -455,14 +458,14 @@ panderOptions(&#39;table.split.table&#39;, Inf)</code></pre>
 <p>Although we’ve introduced the extra pre-processing step to reduce the limitation of the imperfect silver standard, you should be cautious that the analysis is still far from perfect. For instance, we think that to use silver standard for evaluation of performance - Could be conservative in estimating the precision - Could favor methods assigning more weights to coding variations - Could favor methods with conservative nature (select genes with large effect and tend not to select genes with weaker effect)</p>
 </div>
 <div id="an-working-example" class="section level1">
-<h1><span class="header-section-number">3</span> An working example</h1>
+<h1><span class="header-section-number">4</span> An working example</h1>
 <p>Here we show you a self-contained working example to guide you through the silver standard analysis pipeline. For the sake of simplicity, we perform the silver standard analysis stated in <a href="https://www.biorxiv.org/content/10.1101/814350v1">GTEx GWAS paper</a> using rare variant-based silver standard.</p>
 <div id="step-0-load-silver-standard" class="section level2">
-<h2><span class="header-section-number">3.1</span> Step 0: load silver standard</h2>
+<h2><span class="header-section-number">4.1</span> Step 0: load silver standard</h2>
 <pre class="r"><code>data(&quot;rare_variant_based_silver_standard&quot;)</code></pre>
 </div>
 <div id="step-1-prepare-your-score-table-and-map-table" class="section level2">
-<h2><span class="header-section-number">3.2</span> Step 1: prepare your score table and map table</h2>
+<h2><span class="header-section-number">4.2</span> Step 1: prepare your score table and map table</h2>
 <p>The rare variant-based silver standard includes only height and some lipid traits. So that we hand pick the relevant traits from GTEx GWAS paper and hand code the <em>best</em> match (to our knowledge) EFO and HPO terms for them.</p>
 <p><em>Note that</em> we are somewhat cheating here since we know the silver standard too well and we know which EFO/HPO terms are used there. To get a general sense on what the silver standard contains and what EFO/HPO terms to use the achieve reasonable mapping, please take a look at <a href="about_silver_standard.html">this post</a>.</p>
 <pre class="r"><code>map_table = data.frame(
@@ -473,11 +476,6 @@ panderOptions(&#39;table.split.table&#39;, Inf)</code></pre>
 map_table %&gt;% pander(caption = &#39;Map table&#39;)</code></pre>
 <table>
 <caption>Map table</caption>
-<colgroup>
-<col width="63%" />
-<col width="18%" />
-<col width="18%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="center">trait</th>
@@ -525,16 +523,16 @@ tb_predixcan = bq_dataset_query(bq_dataset(&#39;gtex-awg-im&#39;, &#39;GTEx_V8_P
 ## Billed: 0 B</code></pre>
 <pre class="r"><code>df_predixcan = bq_table_download(tb_predixcan)</code></pre>
 <pre><code>## Downloading 112,512 rows in 12 pages.</code></pre>
-<pre><code>## Downloading data [==&gt;-------------------------------------] 8% ETA: 18s
-## Downloading data [======&gt;---------------------------------] 17% ETA: 8s
-## Downloading data [=========&gt;------------------------------] 25% ETA: 5s
+<pre><code>## Downloading data [==&gt;-------------------------------------] 8% ETA: 13s
+## Downloading data [======&gt;---------------------------------] 17% ETA: 6s
+## Downloading data [=========&gt;------------------------------] 25% ETA: 4s
 ## Downloading data [============&gt;---------------------------] 33% ETA: 3s
 ## Downloading data [================&gt;-----------------------] 42% ETA: 2s
-## Downloading data [===================&gt;--------------------] 50% ETA: 2s
-## Downloading data [======================&gt;-----------------] 58% ETA: 2s
+## Downloading data [===================&gt;--------------------] 50% ETA: 1s
+## Downloading data [======================&gt;-----------------] 58% ETA: 1s
 ## Downloading data [==========================&gt;-------------] 67% ETA: 1s
 ## Downloading data [=============================&gt;----------] 75% ETA: 1s
-## Downloading data [================================&gt;-------] 83% ETA: 1s
+## Downloading data [================================&gt;-------] 83% ETA: 0s
 ## Downloading data [====================================&gt;---] 92% ETA: 0s
 ## Downloading data [========================================] 100% ETA: 0s</code></pre>
 <pre><code>## 
@@ -544,8 +542,6 @@ Parsing [======================================================] ETA:  0s
 <pre class="r"><code>df_enloc = bq_table_download(tb_enloc)</code></pre>
 <pre><code>## Downloading 38,570 rows in 4 pages.
 ## 
-Downloading data [=========&gt;------------------------------]  25% ETA:  3s
-Downloading data [===================&gt;--------------------]  50% ETA:  1s
 Downloading data [=============================&gt;----------]  75% ETA:  0s
 Downloading data [========================================] 100% ETA:  0s
                                                                          </code></pre>
@@ -572,14 +568,8 @@ for(t in unique(score_table_predixcan$trait)) {
 }
 score_table = inner_join(score_table_enloc, score_table_predixcan, by = c(&#39;trait&#39;, &#39;gene&#39;))
 score_table %&gt;% head %&gt;% pander(caption = &#39;score table&#39;)</code></pre>
-<table style="width:92%;">
+<table>
 <caption>score table</caption>
-<colgroup>
-<col width="18%" />
-<col width="25%" />
-<col width="16%" />
-<col width="31%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="center">trait</th>
@@ -629,7 +619,7 @@ score_table %&gt;% head %&gt;% pander(caption = &#39;score table&#39;)</code></p
 </table>
 </div>
 <div id="step-2-prepare-gwas-locus" class="section level2">
-<h2><span class="header-section-number">3.3</span> Step 2: Prepare GWAS locus</h2>
+<h2><span class="header-section-number">4.3</span> Step 2: Prepare GWAS locus</h2>
 <p>Following the GTEx GWAS paper, we define GWAS loci as LD block (by <a href="https://academic.oup.com/bioinformatics/article/32/2/283/1743626">Berisa et al</a>) containing variants with p-value &lt; 5e-8. Again, we query the results in BigQuery to extract GWAS signals</p>
 <pre class="r"><code>sql_gwas = &quot;SELECT * FROM `gtex-awg-im.GWAS_all.formatted_gwas` where phenotype in (&#39;UKB_50_Standing_height&#39;, &#39;GLGC_Mc_LDL&#39;, &#39;GLGC_Mc_HDL&#39;, &#39;GLGC_Mc_TG&#39;, &#39;UKB_20002_1473_self_reported_high_cholesterol&#39;) and pvalue &lt; 5e-8&quot;
 tb_gwas = bq_dataset_query(bq_dataset(&#39;gtex-awg-im&#39;, &#39;GWAS_all&#39;), query = sql_gwas)</code></pre>
@@ -637,15 +627,15 @@ tb_gwas = bq_dataset_query(bq_dataset(&#39;gtex-awg-im&#39;, &#39;GWAS_all&#39;)
 <pre><code>## Billed: 0 B</code></pre>
 <pre class="r"><code>df_gwas = bq_table_download(tb_gwas)</code></pre>
 <pre><code>## Downloading 156,133 rows in 16 pages.</code></pre>
-<pre><code>## Downloading data [=&gt;--------------------------------------] 6% ETA: 32s
-## Downloading data [====&gt;-----------------------------------] 12% ETA: 16s
-## Downloading data [=======&gt;--------------------------------] 19% ETA: 22s
-## Downloading data [=========&gt;------------------------------] 25% ETA: 15s
-## Downloading data [===========&gt;----------------------------] 31% ETA: 12s
-## Downloading data [==============&gt;-------------------------] 38% ETA: 9s
-## Downloading data [=================&gt;----------------------] 44% ETA: 8s
-## Downloading data [===================&gt;--------------------] 50% ETA: 6s
-## Downloading data [=====================&gt;------------------] 56% ETA: 6s
+<pre><code>## Downloading data [=&gt;--------------------------------------] 6% ETA: 43s
+## Downloading data [====&gt;-----------------------------------] 12% ETA: 31s
+## Downloading data [=======&gt;--------------------------------] 19% ETA: 19s
+## Downloading data [=========&gt;------------------------------] 25% ETA: 14s
+## Downloading data [===========&gt;----------------------------] 31% ETA: 11s
+## Downloading data [==============&gt;-------------------------] 38% ETA: 8s
+## Downloading data [=================&gt;----------------------] 44% ETA: 7s
+## Downloading data [===================&gt;--------------------] 50% ETA: 8s
+## Downloading data [=====================&gt;------------------] 56% ETA: 7s
 ## Downloading data [========================&gt;---------------] 62% ETA: 5s
 ## Downloading data [===========================&gt;------------] 69% ETA: 4s
 ## Downloading data [=============================&gt;----------] 75% ETA: 3s
@@ -669,14 +659,8 @@ Parsing [======================================================] ETA:  0s
 <pre class="r"><code>df_gwas = as.data.frame(df_gwas)
 gwas_lead = df_gwas %&gt;% select(chromosome , position, panel_variant_id, trait = phenotype)
 gwas_lead %&gt;% head %&gt;% pander(caption = &#39;GWAS signal in data.frame&#39;)</code></pre>
-<table style="width:86%;">
+<table>
 <caption>GWAS signal in data.frame</caption>
-<colgroup>
-<col width="18%" />
-<col width="15%" />
-<col width="33%" />
-<col width="19%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="center">chromosome</th>
@@ -730,15 +714,6 @@ gwas_lead %&gt;% head %&gt;% pander(caption = &#39;GWAS signal in data.frame&#39
 <pre class="r"><code>df_gwas %&gt;% head %&gt;% pander(caption = &#39;GWAS loci&#39;)</code></pre>
 <table>
 <caption>GWAS loci</caption>
-<colgroup>
-<col width="13%" />
-<col width="11%" />
-<col width="24%" />
-<col width="14%" />
-<col width="14%" />
-<col width="11%" />
-<col width="11%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="center">chromosome</th>
@@ -809,7 +784,7 @@ gwas_lead %&gt;% head %&gt;% pander(caption = &#39;GWAS signal in data.frame&#39
 </table>
 </div>
 <div id="step-3-perform-silver-standard-analysis" class="section level2">
-<h2><span class="header-section-number">3.4</span> Step 3: perform silver standard analysis</h2>
+<h2><span class="header-section-number">4.4</span> Step 3: perform silver standard analysis</h2>
 <p>Now that you’ve prepared everything you need.</p>
 <pre class="r"><code>out = silver_standard_proto(score_table, map_table, rare_variant_based_silver_standard, df_gwas, gene_annotation_gencode_v26_hg38$gene_annotation, trait_codes = c(&#39;EFO&#39;, &#39;HPO&#39;))</code></pre>
 <pre><code>## Run with silver standard from: gen_ewas_rare_variant_gene_list.R</code></pre>
@@ -823,12 +798,8 @@ gwas_lead %&gt;% head %&gt;% pander(caption = &#39;GWAS signal in data.frame&#39
 <pre><code>## Pre-processing step 2: select candidate gens overlapping selected GWAS loci</code></pre>
 <pre><code>## # trait-gene pairs in score table after step 2: 1572</code></pre>
 <pre class="r"><code>out$roc_auc %&gt;% pander(caption = &#39;ROC AUC&#39;)</code></pre>
-<table style="width:46%;">
+<table>
 <caption>ROC AUC</caption>
-<colgroup>
-<col width="13%" />
-<col width="31%" />
-</colgroup>
 <thead>
 <tr class="header">
 <th align="center">roc_auc</th>
@@ -853,7 +824,7 @@ gwas_lead %&gt;% head %&gt;% pander(caption = &#39;GWAS signal in data.frame&#39
 </div>
 </div>
 <div id="some-caveats" class="section level1">
-<h1><span class="header-section-number">4</span> Some caveats</h1>
+<h1><span class="header-section-number">5</span> Some caveats</h1>
 <p>When using the pre-processing functionality, please be aware of the fact that it relies on genomic position (GWAS locus is defined as a genomic region). So, the genome assembly version really matters. At the minimal, the two input variables required for pre-processing: <code>gwas_loci</code> and <code>gene_annotation</code> should use the same genome assembly version. The best practice is to use the gene annotation provided by the package, <em>e.g.</em> <code>gene_annotation_gencode_v26_hg38</code>, which uses hg38. Other gene annotations are under-development (without guarantee) and we really encourage people to contribute new gene annotations (a better one? one with other version, hg19?) If you want to contribute, please take a look at the help page of current annotation (for instance, you can type <code>?gene_annotation_gencode_v26_hg38</code> in R environment) for how it is structured.</p>
 <p>Similarly, the handy function <code>SilverStandardPerformance:::gwas_hit_to_gwas_loci_by_ld_block</code> converting GWAS signals (position of GWAS significant SNPs) to GWAS loci on the basis of LD block is also genome assembly version sensitive. Currently, we only have one LD block dataset shared along with the package, <code>ld_block_pickrell_eur_b38</code>, which is based on <a href="https://academic.oup.com/bioinformatics/article/32/2/283/1743626">Berisa et al</a>. The LD block is for Europeans and it is in hg38. Again, we encourage people to contribute other LD blocks (in other population? one with other version, hg19?)</p>
 </div>

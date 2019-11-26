@@ -71,7 +71,7 @@ for(i in 1 : nrow(trait_to_gwas_catalog)) {
   if(length(hpos) == 0) {
     next
   }
-  map_trait_to_hpo[[length(map_trait_to_hpo) + 1]] = data.frame(trait = trait_to_gwas_catalog$trait[i], HPO = paste0('HPO:', stringr::str_pad(hpos, 7, pad = "0")))
+  map_trait_to_hpo[[length(map_trait_to_hpo) + 1]] = data.frame(trait = trait_to_gwas_catalog$trait[i], HPO = paste0('HP:', stringr::str_pad(hpos, 7, pad = "0")))
 }
 map_trait_to_hpo = do.call(rbind, map_trait_to_hpo)
 

@@ -21,7 +21,7 @@ devtools::install_github('liangyy/silver-standard-performance')
 library(SilverStandardPerformance)
 ```
 
-# About pre-processing step in analysis pipeline
+# Limitation of the silver standard
 
 Silver standard has several limitations. 
 And here is a incomplete list of these limitations:
@@ -32,6 +32,8 @@ And here is a incomplete list of these limitations:
 3. Many trait/gene pairs in silver standard data set are estabilished 
     - On the basis of coding variations (so that may favor genes with bigger coding signal)
     - On the basis of a *relevant* rare/Mendelian phenotype (so that may favor genes with large effect)
+
+# About pre-processing step in analysis pipeline
 
 To partially address the limitation, we recommend to perform the silver standard analysis limiting to a specific subset of trait/gene candidates, which are:
 

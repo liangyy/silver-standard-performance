@@ -405,7 +405,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Example run of silver standard analysis</h1>
-<h4 class="date">24 November, 2019</h4>
+<h4 class="date">26 November, 2019</h4>
 
 </div>
 
@@ -427,7 +427,7 @@ panderOptions(&#39;table.split.table&#39;, Inf)</code></pre>
 <h1><span class="header-section-number">1</span> Install</h1>
 <p>Install <code>SilverStandardPerformance</code></p>
 <pre class="r"><code>devtools::install_github(&#39;liangyy/silver-standard-performance&#39;)</code></pre>
-<pre><code>## Skipping install of &#39;SilverStandardPerformance&#39; from a github remote, the SHA1 (9111a721) has not changed since last install.
+<pre><code>## Skipping install of &#39;SilverStandardPerformance&#39; from a github remote, the SHA1 (ae886a6a) has not changed since last install.
 ##   Use `force = TRUE` to force installation</code></pre>
 <pre class="r"><code>library(SilverStandardPerformance)</code></pre>
 </div>
@@ -438,49 +438,57 @@ panderOptions(&#39;table.split.table&#39;, Inf)</code></pre>
 omim_based_silver_standard$script_info</code></pre>
 <pre><code>## [1] &quot;phecode_to_omim_to_gene.sh&quot;</code></pre>
 <pre class="r"><code>omim_based_silver_standard$table %&gt;% head %&gt;% pander</code></pre>
-<table style="width:58%;">
+<table style="width:65%;">
 <colgroup>
 <col width="25%" />
-<col width="19%" />
+<col width="18%" />
 <col width="13%" />
+<col width="8%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="center">gene</th>
 <th align="center">HPO</th>
 <th align="center">phecode</th>
+<th align="center">EFO</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="center">ENSG00000133019</td>
-<td align="center">HPO:0000028</td>
+<td align="center">HP:0000028</td>
 <td align="center">751.12</td>
+<td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center">ENSG00000133019</td>
-<td align="center">HPO:0000072</td>
+<td align="center">HP:0000072</td>
 <td align="center">586.4</td>
+<td align="center">NA</td>
 </tr>
 <tr class="odd">
 <td align="center">ENSG00000133019</td>
-<td align="center">HPO:0000126</td>
+<td align="center">HP:0000126</td>
 <td align="center">595</td>
+<td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center">ENSG00000133019</td>
-<td align="center">HPO:0000217</td>
+<td align="center">HP:0000217</td>
 <td align="center">527.7</td>
+<td align="center">NA</td>
 </tr>
 <tr class="odd">
 <td align="center">ENSG00000133019</td>
-<td align="center">HPO:0000767</td>
+<td align="center">HP:0000767</td>
 <td align="center">756.21</td>
+<td align="center">NA</td>
 </tr>
 <tr class="even">
 <td align="center">ENSG00000133019</td>
-<td align="center">HPO:0000768</td>
+<td align="center">HP:0000768</td>
 <td align="center">756.22</td>
+<td align="center">NA</td>
 </tr>
 </tbody>
 </table>
@@ -523,7 +531,7 @@ for(i in 1 : nrow(trait_to_gwas_catalog)) {
   if(length(hpos) == 0) {
     next
   }
-  map_trait_to_hpo[[length(map_trait_to_hpo) + 1]] = data.frame(trait = trait_to_gwas_catalog$trait[i], HPO = paste0(&#39;HPO:&#39;, stringr::str_pad(hpos, 7, pad = &quot;0&quot;)))
+  map_trait_to_hpo[[length(map_trait_to_hpo) + 1]] = data.frame(trait = trait_to_gwas_catalog$trait[i], HPO = paste0(&#39;HP:&#39;, stringr::str_pad(hpos, 7, pad = &quot;0&quot;)))
 }
 map_trait_to_hpo = do.call(rbind, map_trait_to_hpo)
 
@@ -632,11 +640,11 @@ map_table2 = map_trait_to_hpo %&gt;% distinct()</code></pre>
 </tbody>
 </table>
 <pre class="r"><code>map_table2 %&gt;% head %&gt;% pander(caption = &#39;trait to HPO&#39;)</code></pre>
-<table>
+<table style="width:99%;">
 <caption>trait to HPO</caption>
 <colgroup>
 <col width="80%" />
-<col width="19%" />
+<col width="18%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -647,27 +655,27 @@ map_table2 = map_trait_to_hpo %&gt;% distinct()</code></pre>
 <tbody>
 <tr class="odd">
 <td align="center">UKB_1200_Sleeplessness_or_insomnia</td>
-<td align="center">HPO:0100785</td>
+<td align="center">HP:0100785</td>
 </tr>
 <tr class="even">
 <td align="center">UKB_20002_1094_self_reported_deep_venous_thrombosis_dvt</td>
-<td align="center">HPO:0004936</td>
+<td align="center">HP:0004936</td>
 </tr>
 <tr class="odd">
 <td align="center">UKB_20002_1094_self_reported_deep_venous_thrombosis_dvt</td>
-<td align="center">HPO:0001977</td>
+<td align="center">HP:0001977</td>
 </tr>
 <tr class="even">
 <td align="center">UKB_20002_1094_self_reported_deep_venous_thrombosis_dvt</td>
-<td align="center">HPO:0001907</td>
+<td align="center">HP:0001907</td>
 </tr>
 <tr class="odd">
 <td align="center">UKB_20002_1094_self_reported_deep_venous_thrombosis_dvt</td>
-<td align="center">HPO:0002639</td>
+<td align="center">HP:0002639</td>
 </tr>
 <tr class="even">
 <td align="center">UKB_20002_1094_self_reported_deep_venous_thrombosis_dvt</td>
-<td align="center">HPO:0030243</td>
+<td align="center">HP:0030243</td>
 </tr>
 </tbody>
 </table>
