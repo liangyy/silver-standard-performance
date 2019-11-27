@@ -152,7 +152,7 @@ The above command gives rise to the following data.frame in `gwas_loci`.
 
 ### Step 4: Perform the actual analysis
 
-Once you prepared the data.frame containing scores (*e.g.* `score_table`) and the data.frame mapping trait to phenotype ontology (*e.g.* `map_table`), it is time to perform the actual analysis using function `silver_standard_performance`.
+Once you prepared the data.frame containing scores (*e.g.* `score_table`) and the data.frame mapping trait to phenotype ontology (*e.g.* `map_table`), it is time to perform the actual analysis using function `silver_standard_perf`.
 
 Before running, you need to select a silver standard.
 To see what silver standard datasets are available, you can type
@@ -167,7 +167,7 @@ Suppose `omim_based_silver_standard` is selected to run the analysis, then all y
 
 ```
 > data("omim_based_silver_standard")
-> output = silver_standard_performance(
+> output = silver_standard_perf(
     score_table = score_table, 
     map_table = map_table,
     silver_standard = omim_based_silver_standard,
@@ -184,7 +184,7 @@ then you can do:
 > data("omim_based_silver_standard")
 > # load gene annotation file provided along with the package, which tells the location of each gene
 > data("gene_annotation_gencode_v26_hg38")  
-> output = silver_standard_performance(
+> output = silver_standard_perf(
     score_table = score_table, 
     map_table = map_table,
     silver_standard = omim_based_silver_standard,  
