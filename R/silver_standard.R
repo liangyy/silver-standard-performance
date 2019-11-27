@@ -42,43 +42,44 @@
 #' @return list containing PR and ROC plots which are ggplot2 objects
 #'
 #' @examples
-#' score_table = data.frame(
-#'   trait = c(rep('t1', 20), rep('t2', 30), rep('t3', 50)),
-#'   gene = paste0('g', 1:100),
-#'   score1 = runif(100),
-#'   score2 = runif(100),
-#'   stringsAsFactors = FALSE
-#' )
-#' map_table = data.frame(
-#'   trait = c('t1', 't2', 't3'),
-#'   phecode = c('1.1', '23', '12'),
-#'   stringsAsFactors = FALSE
-#' )
-#' silver_standard = list(
-#'   table = data.frame(
-#'     phecode = c(rep('1.1', 10), rep('23', 10), rep('12', 10), rep('2', 10)),
-#'     gene = paste0('g', 1:40),
+#' silver_standard_perf(
+#'   score_table = data.frame(
+#'     trait = c(rep('t1', 20), rep('t2', 30), rep('t3', 50)),
+#'     gene = paste0('g', 1:100),
+#'     score1 = runif(100),
+#'     score2 = runif(100),
 #'     stringsAsFactors = FALSE
 #'   ),
-#'   script_info = 'toy_example'
-#' )
-#' gwas_loci = data.frame(
-#'   chromosome = paste0('chr', sample(1:1, size = 10, replace = TRUE)),
-#'   start = (1:10) * 1e3 + 300, end = (1:10) * 1e3 + 500,
-#'   trait = sample(c('t1', 't2'), size = 10, replace = TRUE)
-#' )
-#' gene_annot = data.frame(
-#'   chromosome = paste0('chr', sample(1:1, size = 100, replace = TRUE)),
-#'   gene_id = paste0('g', 1:100),
-#'   start = 1:10 * 1e3 + 350,
-#'   end = 1:10 * 1e3 + 450,
-#'   gene_type = c(rep('protein_coding', 60), rep('psuedogene', 40))
-#' )
-#'
+#'   map_table = data.frame(
+#'     trait = c('t1', 't2', 't3'),
+#'     phecode = c('1.1', '23', '12'),
+#'     stringsAsFactors = FALSE
+#'   ),
+#'   silver_standard = list(
+#'     table = data.frame(
+#'       phecode = c(rep('1.1', 10), rep('23', 10), rep('12', 10), rep('2', 10)),
+#'       gene = paste0('g', 1:40),
+#'       stringsAsFactors = FALSE
+#'     ),
+#'     script_info = 'toy_example'
+#'   ),
+#'   gwas_loci = data.frame(
+#'     chromosome = paste0('chr', sample(1:1, size = 10, replace = TRUE)),
+#'     start = (1:10) * 1e3 + 300, end = (1:10) * 1e3 + 500,
+#'     trait = sample(c('t1', 't2'), size = 10, replace = TRUE)
+#'   ),
+#'   gene_annot = data.frame(
+#'     chromosome = paste0('chr', sample(1:1, size = 100, replace = TRUE)),
+#'     gene_id = paste0('g', 1:100),
+#'     start = 1:10 * 1e3 + 350,
+#'     end = 1:10 * 1e3 + 450,
+#'     gene_type = c(rep('protein_coding', 60), rep('psuedogene', 40))
+#'   )
+#')
 #' @export
 #' @import dplyr
 #' @import ggplot2
-silver_standard_proto = function(score_table, map_table, silver_standard, gwas_loci = NULL, gene_annotation = NULL, score_cols = NULL, trait_codes = 'phecode', mapping_method = 'greedy_map') {
+silver_standard_perf = function(score_table, map_table, silver_standard, gwas_loci = NULL, gene_annotation = NULL, score_cols = NULL, trait_codes = 'phecode', mapping_method = 'greedy_map') {
   message('Run with silver standard from: ', silver_standard$script_info)
   message('Map trait by: ', paste(trait_codes, collapse = ' ,'))
   message('Mapper chosen: ', mapping_method)
