@@ -405,29 +405,21 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Example run of silver standard analysis</h1>
-<h4 class="date">26 November, 2019</h4>
+<h4 class="date">27 November, 2019</h4>
 
 </div>
 
 
 <pre class="r"><code>rm(list = ls())
 library(ggplot2)
-library(dplyr)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(pander)
+library(dplyr)
+library(pander)
 panderOptions(&#39;table.split.table&#39;, Inf)</code></pre>
 <div id="install" class="section level1">
 <h1><span class="header-section-number">1</span> Install</h1>
 <p>Install <code>SilverStandardPerformance</code></p>
 <pre class="r"><code>devtools::install_github(&#39;liangyy/silver-standard-performance&#39;)</code></pre>
-<pre><code>## Skipping install of &#39;SilverStandardPerformance&#39; from a github remote, the SHA1 (ae886a6a) has not changed since last install.
+<pre><code>## Skipping install of &#39;SilverStandardPerformance&#39; from a github remote, the SHA1 (acd65c56) has not changed since last install.
 ##   Use `force = TRUE` to force installation</code></pre>
 <pre class="r"><code>library(SilverStandardPerformance)</code></pre>
 </div>
@@ -685,7 +677,7 @@ map_table2 = map_trait_to_hpo %&gt;% distinct()</code></pre>
 <h1><span class="header-section-number">4</span> Run silver standard analysis</h1>
 <div id="join-by-phecode" class="section level2">
 <h2><span class="header-section-number">4.1</span> Join by phecode</h2>
-<pre class="r"><code>o = silver_standard_proto(score_table, map_table, omim_based_silver_standard, trait_codes = &#39;phecode&#39;)</code></pre>
+<pre class="r"><code>o = silver_standard_perf(score_table, map_table, omim_based_silver_standard, trait_codes = &#39;phecode&#39;)</code></pre>
 <pre><code>## Run with silver standard from: phecode_to_omim_to_gene.sh</code></pre>
 <pre><code>## Map trait by: phecode</code></pre>
 <pre><code>## Mapper chosen: greedy_map</code></pre>
@@ -725,7 +717,7 @@ map_table2 = map_trait_to_hpo %&gt;% distinct()</code></pre>
 </div>
 <div id="join-by-hpo" class="section level2">
 <h2><span class="header-section-number">4.2</span> Join by HPO</h2>
-<pre class="r"><code>o = silver_standard_proto(score_table, map_table2, omim_based_silver_standard, trait_codes = &#39;HPO&#39;)</code></pre>
+<pre class="r"><code>o = silver_standard_perf(score_table, map_table2, omim_based_silver_standard, trait_codes = &#39;HPO&#39;)</code></pre>
 <pre><code>## Run with silver standard from: phecode_to_omim_to_gene.sh</code></pre>
 <pre><code>## Map trait by: HPO</code></pre>
 <pre><code>## Mapper chosen: greedy_map</code></pre>

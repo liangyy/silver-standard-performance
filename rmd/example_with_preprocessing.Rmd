@@ -148,7 +148,7 @@ df_gwas %>% head %>% pander(caption = 'GWAS loci')
 Now that you've prepared everything you need.
 
 ```{r step3}
-out = silver_standard_proto(score_table, map_table, rare_variant_based_silver_standard, df_gwas, gene_annotation_gencode_v26_hg38$gene_annotation, trait_codes = c('EFO', 'HPO'))
+out = silver_standard_perf(score_table, map_table, rare_variant_based_silver_standard, df_gwas, gene_annotation_gencode_v26_hg38$gene_annotation, trait_codes = c('EFO', 'HPO'))
 out$roc_auc %>% pander(caption = 'ROC AUC')
 out$pr + ggtitle('Precision-recall curve')
 out$roc + ggtitle('ROC curve')
